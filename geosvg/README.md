@@ -1,0 +1,1 @@
+These are a few svg animations that I made a long time ago.

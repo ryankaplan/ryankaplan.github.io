@@ -1,0 +1,33 @@
+---
+layout: default
+---
+
+<div class="home">
+
+  <ul class="post-list">
+    {% for post in site.posts %}
+      <li>
+
+        <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a>
+
+        <div class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</div>
+
+        <div class="entry-content">
+          {{ post.excerpt }}
+
+          {% capture content_words %} 
+            {{ post.content | number_of_words }} 
+          {% endcapture %} 
+          {% capture excerpt_words %} 
+            {{ post.excerpt | number_of_words }} 
+          {% endcapture %} 
+          {% if excerpt_words != content_words %}
+            <a href="{{ post.url }}">Read more...</a>
+          {% endif %}
+        </div>
+
+      </li>
+    {% endfor %}
+  </ul>
+
+</div>

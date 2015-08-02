@@ -1,0 +1,21 @@
+---
+layout: post
+title:  "Parallelograms"
+date:   2015-03-24 17:17:15
+categories:
+ - animation
+ - math
+---
+
+<div>
+    If you draw any quad and join its midpoints with lines, you get a parallelogram! That's pretty neat.
+    The animation below repeatedly draws a (not quite) random quad and joins its midpoints with lines.
+
+    <!-- Not conventional to have script tags in the body, but the script tags reference the "draw_quad" div. -->
+    <script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+    <script src="/geosvg/scripts/raphael-min.js"></script>
+    <script
+            data-main="/geosvg/scripts/animation_random_quad_and_midpoint_construction"
+            src="/geosvg/scripts/require-min.js"></script>
+    <div id="draw_quad" ></div>
+</div>

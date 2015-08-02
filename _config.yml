@@ -1,0 +1,11 @@
+# Site settings
+title: Ryan Kaplan
+email: ryankap at gmail dot com
+description: > # this means to ignore newlines until "baseurl:"
+  Software Engineer at Figma. Previously at Dropbox. Studied Math/CS at Brown University.
+baseurl: "" # the subpath of your site, e.g. /blog/
+url: "http://ryankaplan.github.io"
+excerpt_separator: <!--end-excerpt-->
+
+# Build settings
+markdown: redcarpet

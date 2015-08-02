@@ -1,0 +1,57 @@
+body {
+    background: #000;
+    margin: 0px;
+    font-family: "Helvetica", Sans-serif;
+    line-height: 130%;
+}
+
+
+a:link, a:active, a:visited, a:hover {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:link { color: hotpink; }
+a:active { color: white; }
+a:visited { color: hotpink; }
+a:hover { color: white; }
+
+#wrapper {
+    position: relative;
+}
+
+#sidediv {
+    background: #000;
+    width: 265px;
+}
+
+#canvasdiv {
+    position: absolute;
+    left: 265px;
+    right: 0;
+    top: 0;
+    border: 1px;
+}
+
+#title, #maintext, #instructions{
+    color: #FFF;
+}
+
+#instructions {
+    text-align: center;
+    padding-bottom: 35px;
+    font-size: 15px;
+    font-style: italic;
+}
+
+#title {
+    font-size: 25px;
+    padding-top: 50px;
+    padding-bottom: 25px;
+    text-align: center;
+}
+
+#maintext {
+    padding: 20px;
+}
+
