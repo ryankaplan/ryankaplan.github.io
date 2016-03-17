@@ -16,7 +16,7 @@ If you've never used `@synchronized` before, below is an example of how to use i
 
 Suppose that we're implementing a thread-safe queue in Objective-C. We might start it like this:
 
-~~~ objective-c
+~~~
 @implementation ThreadSafeQueue
 {
     NSMutableArray *_elements;
@@ -53,7 +53,7 @@ The `ThreadSafeQueue` class above has an `init` method which initializes two iva
 
 We can implement this more succinctly using the `@synchronized` construct:
 
-~~~ objective-c
+~~~
 @implementation ThreadSafeQueue
 {
     NSMutableArray *_elements;
@@ -90,7 +90,7 @@ I was curious about the implementation of `@sychronized` and I googled around fo
 
 [This SO post](http://stackoverflow.com/a/6047218/1026198) says that a `@synchronized` block transforms into paired calls to `objc_sync_enter` and `objc_sync_exit`. We don't know what these functions do, but given these facts we may think that the compiler takes code like this:
 
-~~~ objective-c
+~~~
 @synchronized(obj) {
     // do work
 }
@@ -98,29 +98,29 @@ I was curious about the implementation of `@sychronized` and I googled around fo
 
 and turns it into something like this:
 
-~~~ objective-c
+~~~
 @try {
     objc_sync_enter(obj);
     // do work
 } @finally {
-    objc_sync_exit(obj);    
+    objc_sync_exit(obj);
 }
 ~~~
 
 What are `objc_sync_enter` and `object_sync_exit` and how are they implemented? Command-clicking them in XCode takes us to `<objc/objc-sync.h>` which has the two functions that we're interested in:
 
-~~~ objective-c
-// Begin synchronizing on 'obj'.  
+~~~
+// Begin synchronizing on 'obj'.
 // Allocates recursive pthread_mutex associated with 'obj' if needed.
 int objc_sync_enter(id obj)
 
-// End synchronizing on 'obj'. 
+// End synchronizing on 'obj'.
 int objc_sync_exit(id obj)
 ~~~
 
 At the bottom fo the file there's a reminder that Apple engineers are humans too ;)
 
-~~~ objective-c
+~~~
 // The wait/notify functions have never worked correctly and no longer exist.
 int objc_sync_wait(id obj, long long milliSecondsMaxWait);
 int objc_sync_notify(id obj);
@@ -130,7 +130,7 @@ Anyway, the documentation of `objc_sync_enter` tells us something new: the `@syn
 
 You can see the full source of `objc-sync` over [here](http://www.opensource.apple.com/source/objc4/objc4-646/runtime/objc-sync.mm), but I'll walk you through it at a high level. Let's start by looking at the data structures at the top of the file. I'll explain them just below this code block, so don't spend too long trying to decipher them.
 
-~~~ objective-c
+~~~
 typedef struct SyncData {
     id object;
     recursive_mutex_t mutex;
@@ -150,7 +150,7 @@ First off, we have a definition of `struct SyncData`. This struct contains an `o
 
 Next we have the definition of `struct SyncList`. As I mentioned above, you can think of a `SyncData` as a node in a list. Each `SyncList` struct has a pointer to the head of a list of `SyncData` nodes, as well as a lock to prevent concurrent modification of the list from multiple threads.
 
-The last line of the code block above is a declaration of `sDataLists` - an array of `SyncList` structs. It may not look like it at first, but this `sDataList` array is a hash table (like an `NSDictionary`) that maps Objective-C objects to their corresponding lock. 
+The last line of the code block above is a declaration of `sDataLists` - an array of `SyncList` structs. It may not look like it at first, but this `sDataList` array is a hash table (like an `NSDictionary`) that maps Objective-C objects to their corresponding lock.
 
 When you call `objc_sync_enter(obj)`, it uses a hash of the memory address of `obj` to look up the appropriate `SyncData`, and then locks it. When you call `objc_sync_exit`, it looks up the appropriate `SyncData` and unlocks it.
 
@@ -158,7 +158,7 @@ Great! Now we know how `@synchronized` associates a lock with the object that yo
 
 If you looked at the source, you'll notice that there are no `retains` or `releases` inside `objc_sync_enter`. So it either doesn't retain the objects passed to it, or its compiled under arc. We can test this with the following code:
 
-~~~ objective-c
+~~~
 NSDate *test = [NSDate date];
 // This should always be `1`
 NSLog(@"%@", @([test retainCount]));
@@ -175,7 +175,7 @@ This outputs `1` and `1` for each retain count. So it seems like `objc_sync_ente
 
 What if the object gets set to `nil` in the synchronized block? Let's look again at our naive implementation:
 
-~~~ objective-c
+~~~
 NSString *test = @"test";
 @try {
     // Allocates a lock for test and locks it
@@ -184,7 +184,7 @@ NSString *test = @"test";
 } @finally {
     // Passed `nil`, so the lock allocated in `objc_sync_enter`
     // above is never unlocked or deallocated
-    objc_sync_exit(test);   
+    objc_sync_exit(test);
 }
 ~~~
 
@@ -192,7 +192,7 @@ NSString *test = @"test";
 
 Do we know if `Objective-C` is susceptible to this issue? The following code calls `@synchronized` with a pointer that goes to `nil` in the `@synchronized` block. It then schedules work on a background thread that calls `@synchronized` with a pointer to the same object. If setting an object to `nil` in a `@synchronized` block leaves the lock locked, then the code inside the second `@synchronized` will never be run. We shouldn't see anything printed to the console.
 
-~~~ objective-c
+~~~
 NSNumber *number = @(1);
 NSNumber *thisPtrWillGoToNil = number;
 
@@ -227,14 +227,14 @@ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0),
 
 When we run the code above, the line **does** get printed to the console! So Objective-C handles this case just fine. My bet is that this is fixed by having the compiler do something more like the following.
 
-~~~ objective-c
+~~~
 NSString *test = @"test";
 id synchronizeTarget = (id)test;
 @try {
     objc_sync_enter(synchronizeTarget);
     test = nil;
 } @finally {
-    objc_sync_exit(synchronizeTarget);   
+    objc_sync_exit(synchronizeTarget);
 }
 ~~~
 
