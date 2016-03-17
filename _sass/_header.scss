@@ -45,6 +45,12 @@
   text-align: center;
 }
 
+.site-header .site-title {
+    float: left;
+}
+
 .site-header .site-nav {
   text-align: center;
+  float: right;
+  margin-top: 0;
 }
