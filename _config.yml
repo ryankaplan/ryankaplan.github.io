@@ -6,6 +6,7 @@ description: > # this means to ignore newlines until "baseurl:"
 baseurl: "" # the subpath of your site, e.g. /blog/
 url: "http://ryankaplan.github.io"
 excerpt_separator: <!--end-excerpt-->
+exclude: ["vendor/"]
 
 # Build settings
 markdown: redcarpet
