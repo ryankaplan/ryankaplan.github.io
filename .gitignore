@@ -3,5 +3,4 @@ _site
 .sass-cache
 .idea
 .DS_Store
-compiled
 vendor
