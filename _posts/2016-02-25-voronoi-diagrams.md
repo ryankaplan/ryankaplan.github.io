@@ -7,8 +7,71 @@ categories:
  - skew
 ---
 
-I implemented an algorithm for generating Voronoi diagrams on the GPU. This means that it runs really fast, which makes for fun demos. Check them out <a href="http://www.rykap.com/gpu-voronoi" target="blank_">here</a>.
+<link rel="stylesheet" href="/submodules/gpu-voronoi/www/nouislider.css" type="text/css">
+<script type="text/javascript" src="/submodules/gpu-voronoi/www/nouislider.min.js"></script>
+<script type="text/javascript" src="/compiled/voronoi-demo.js" ></script>
 
-<a href="http://www.rykap.com/gpu-voronoi" target="blank_">
-    <img src="http://rykap.com/images/voronoi.png" />
-</a>
+---
+
+*Disclaimer: the demos on this page use WebGL features that aren't available on many mobile devices. For the best experience, read this on a Desktop computer.*
+
+---
+
+What is a Voronoi diagram? Try the demo below to find out. When you click in the left canvas, you plant a colored &lsquo;seed&rsquo;. In the right canvas, every pixel takes the color of the closest seed. You can drag to plant lots of seeds.
+
+<div id="paint-demo-container"></div>
+
+Demo #2: on the left is a scene with a few moving dots. On the right is the corresponding Voronoi diagram. Move your mouse over either canvas to control the location of the yellow dot. I like to pretend that it's a yellow fish swimming in water.
+
+<div id="fish-demo-container"></div>
+
+Here's one more demo that I think is fun. In the left canvas there are seeds in a radial pattern overlaid on top of a photo. Each seed takes the color of the underlying pixel in the image. Move the circular handle to move the seeds and move the square handle to rotate them.
+
+<div id="photo-demo-container"></div>
+
+# How does it work?
+
+There are a few popular algorithms for computing Voronoi diagrams. I'll talk about the one that I used to build the demos above (you can find the code for them <a target="blank_" href="https://github.com/ryankaplan/gpu-voronoi">here</a>). The approach is from a paper called <a href="http://www.comp.nus.edu.sg/~tants/jfa.html" target="blank_">Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform</a>. We'll call it JFA - short for Jump Flooding Algorithm.
+
+The input to JFA is a blank background with some colored seeds on it (like the input canvas in the first demo above). You iterate over the image in *rounds*, each with a *step length*, k. In a given round you iterate through each pixel (i, j) and look at 8 pixels around it. The 8 pixels that you look at aren't the immediate neighbours. They depend on the step length of the round that you're in. If your round has step length k, then you look at nearby pixels in the pattern shown in the diagram below.
+
+<div style="width: 100%; text-align: center; margin: 40px auto;">
+    <div style="margin: auto; max-width: 400px;">
+    <img style="width: 100%; height: 100%;" src="/images/step-k.svg" alt="">
+    <div>For each pixel that you process, you look for seeds in each cardinal and intercardinal direction.</div>
+    </div>
+</div>
+
+
+If your round has step length 1, then you look at your immediate neighbours. But if your step length is 10, then you look 10 pixels North, North-West, West, South-West, etc.
+
+At each stage of JFA, each pixel remembers the closest seed that it's seen so far. So when you visit new pixels in the pattern described above, you check to see if the pixel you're visiting knows about a closer seed than the closest one you've found so far.
+
+The first round of JFA has step length N / 2, where N is the size of the grid. The next one has step length N / 4. The following has N / 8, and so on until N / k is 1. In total there are log(N) rounds. Below is an interactive demo showing the pattern in which JFA moves through the grid for each round. At each step, it shows the grid cell that we're currently processing and the 8 cells around it that it visits to look for seeds. Use the slider to change which round you're on.
+
+<div id="jfa-pattern-demo-container"></div>
+
+
+To summarize, JFA works as follows: you walk through every pixel in the grid log(N) times. The first time, you look for seeds in the 8 'neighbours' roughly N / 2 pixels away from the current pixel. The next round you look at the neighbours roughly N / 4 pixels away, and so on. Every pixel holds on to the closest seed that it's found so far and during the course of the algorithm passes that information on to other cells in the grid.
+
+It's interesting to see what the JFA grid looks like at the end of each round. Below is a demo like the one at the top of the page, except there's a slider to set the maximum JFA round number. If you set it to 5, then we stop computing JFA at round 5 and show the result in the second canvas. Try adding a few seeds and moving the slider slowly from round 0 to see what JFA does at each step. I find it really interesting how it all comes together in the last two steps -- before that it doesn't look much like a Voronoi diagram at all.
+
+<div id="slider-demo-container"></div>
+
+# Distance fields
+
+JFA gives us two things for every pixel: the color of the closest seed, and the location of the closest seed. I used the color of the closest seed in the demos above. Below is a demo that colors pixels by how far they are from the closest seed. A bright pixel means its close to a seed.
+
+<div id="distance-demo-container" ></div>
+
+We can use this to build drop shadows for artbitrary shapes. One of the tricky parts of rendering drop shadows (in CSS) is that they have a 'spread' value. The bigger the spread, the farther the shadow reaches before fading out. This means that you can't implement a drop shadow just by blurring the shape casting the shadow.
+
+
+We use JFA to generate a distance field - each pixel in the shape casting the shadow is a 'seed' our JFA input. The distance field tells us how far away each pixel is from the geometry casting the shadow. When the spread is big, we know that we should blur shadow pixels only if they're far from the geometry, and vice versa.
+
+
+<div id="shadow-demo-container"></div>
+
+
+You can drag the canvas above the move the drop shadow, or use the sliders to control spread and blur.
+

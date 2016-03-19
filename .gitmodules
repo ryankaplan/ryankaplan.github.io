@@ -1,0 +1,3 @@
+[submodule "submodules/gpu-voronoi"]
+	path = submodules/gpu-voronoi
+	url = https://github.com/ryankaplan/gpu-voronoi.git
