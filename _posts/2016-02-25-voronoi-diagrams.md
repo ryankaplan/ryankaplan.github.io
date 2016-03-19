@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Voronoi Diagrams"
+title:  "Voronoi Diagrams on the GPU"
 date:   2016-02-25 23:26:26
 categories:
  - graphics
