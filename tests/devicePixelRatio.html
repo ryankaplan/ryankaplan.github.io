@@ -1,0 +1,24 @@
+<html>
+<head>
+<style>
+body {
+    text-align: center;
+    padding: 20px 40px;
+}
+
+p {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 60px;
+    color: #333;
+}
+</style>
+<script>
+window.addEventListener("load", function () {
+    var text = "Your current devicePixelRatio is " + window.devicePixelRatio;
+    document.getElementById("device-pixel-ratio").innerText = text;
+});
+</script>
+</head>
+<body>
+    <p id="device-pixel-ratio"></p>
+</html>
