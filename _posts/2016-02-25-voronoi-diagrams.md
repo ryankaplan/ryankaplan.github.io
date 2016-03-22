@@ -48,8 +48,6 @@ At each stage of JFA, every pixel remembers the location - not just the color - 
 
 A pixel doesn't need to visit a seed to find out about it. It just needs to visit another pixel that visited it. Or a pixel that visited another pixel that visited it, and so on.
 
-Take a moment to let that sink in. I just described how a particular round of JFA works. Next I'll talk about how many rounds there are and what their step-lengths are...
-
 The first round of JFA has step length N / 2, where N is the size of the grid. The next one has step length N / 4. The following has N / 8, and so on until N / k is 1. In total there are log(N) rounds. Below is an interactive demo showing the pattern in which JFA moves through the grid for each round. At each step, it shows the grid cell that we're currently processing and the 8 cells around it that it visits to look for seeds. Use the slider to change which round you're on.
 
 <div id="jfa-pattern-demo-container"></div>
