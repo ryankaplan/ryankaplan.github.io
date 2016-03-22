@@ -19,15 +19,15 @@ categories:
 
 What is a Voronoi diagram? Try the demo below to find out. When you click in the first canvas, you plant a colored 'seed'. In the second canvas, every pixel takes the color of the closest seed. You can drag to plant lots of seeds.
 
-<div id="paint-demo-container"></div>
+<div id="paint-demo-container" style="height: 336px;"></div>
 
 Demo #2: the first canvas displays a few moving dots. The second canvas shows the corresponding Voronoi diagram. Move your mouse over either canvas to control the location of the yellow dot. I like to pretend that it's a yellow fish swimming in water.
 
-<div id="fish-demo-container"></div>
+<div id="fish-demo-container" style="height: 336px;"></div>
 
 Here's one more demo that I think is fun. In the first canvas there are seeds in a radial pattern overlaid on top of a photo. Each seed takes the color of the underlying pixel in the image. Move the circular handle to move the seeds and move the square handle to rotate them.
 
-<div id="photo-demo-container"></div>
+<div id="photo-demo-container" style="height: 336px;"></div>
 
 # How does it work?
 
@@ -50,25 +50,25 @@ A pixel doesn't need to visit a seed to find out about it. It just needs to visi
 
 The first round of JFA has step length N / 2, where N is the size of the grid. The next one has step length N / 4. The following has N / 8, and so on until N / k is 1. In total there are log(N) rounds. Below is an interactive demo showing the pattern in which JFA moves through the grid for each round. At each step, it shows the grid cell that we're currently processing and the 8 cells around it that it visits to look for seeds. Use the slider to change which round you're on.
 
-<div id="jfa-pattern-demo-container"></div>
+<div id="jfa-pattern-demo-container" style="height: 430px"></div>
 
 To summarize, JFA works as follows: you walk through every pixel in the grid log(N) times. The first time, you look for seeds in the 8 'neighbours' roughly N / 2 pixels away from the current pixel. The next round you look at the neighbours roughly N / 4 pixels away, and so on. Every pixel holds on to the closest seed that it's found so far and during the course of the algorithm passes that information on to other cells in the grid.
 
 It's interesting to see what the JFA grid looks like at the end of each round. Below is a demo like the one at the top of the page, except there's a slider to set the maximum JFA round number. If you set it to 5, then we stop computing JFA at round 5 and show the result in the second canvas. Try adding a few seeds and moving the slider slowly from round 0 to see what JFA does at each step. I find it really interesting how it all comes together in the last two steps -- before that it doesn't look much like a Voronoi diagram at all.
 
-<div id="slider-demo-container"></div>
+<div id="slider-demo-container" style="height: 412px"></div>
 
 # Distance fields
 
 JFA gives us two things for every pixel: the color of the closest seed (which we used above to draw Voronoi diagrams) and the location of the closest seed. To demonstrate the latter, here's the same 'fish' simulation as above except we're coloring pixels by how close they are to their closest seed. Light pixels are close to a seed and dark pixels are far from one.
 
-<div id="distance-demo-container" ></div>
+<div id="distance-demo-container" style="height: 336px"></div>
 
 <a target="_blank" href="https://github.com/evanw">Evan Wallace</a> gave me the idea to use this to render 2D drop shadows on the GPU. One of the tricky parts of rendering CSS drop shadows is that they have a 'spread' value. The bigger the spread, the farther the shadow reaches before fading out. This means that you can't implement a drop shadow just by blurring the shape casting the shadow.
 
 So how does it work? We render the shape that we want to cast a shadow (in the example below its the text 'Voronoi') and we treat each rendered pixel as a seed for JFA. Then we run JFA, which gives us the distance from every pixel in the image to some pixel in the shape. This is exactly what we need to render a drop shadow with spread: pixels close to the shape are in shadow and pixels far from the shape are not.
 
-<div id="shadow-demo-container"></div>
+<div id="shadow-demo-container" style="height: 432px"></div>
 
 You can drag the canvas above the move the drop shadow, or use the sliders to control spread and blur.
 
