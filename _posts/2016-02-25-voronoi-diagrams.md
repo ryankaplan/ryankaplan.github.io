@@ -2,6 +2,7 @@
 layout: post
 title:  "Voronoi Diagrams on the GPU"
 date:   2016-02-25 23:26:26
+summary: I implemented a method of generating Voronoi diagrams on the GPU. It runs in real time with WebGL. Play with some fun demos, or read an explanation of how it works.
 categories:
  - graphics
  - skew
@@ -71,4 +72,3 @@ So how does it work? We render the shape that we want to cast a shadow (in the e
 <div id="shadow-demo-container" style="height: 432px"></div>
 
 You can drag the canvas above the move the drop shadow, or use the sliders to control spread and blur.
-

@@ -2,6 +2,7 @@
 layout: post
 title:  "More than you want to know about @synchronized"
 date:   2015-05-9 17:46:15
+summary: I searched online for the internals of the @synchronized construct in Objective-C and didn't find an answer at the depth that I wanted. Here's what I found.
 categories:
  - Objective-C
 ---

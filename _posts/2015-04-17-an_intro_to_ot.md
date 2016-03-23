@@ -2,6 +2,7 @@
 layout: post
 title:  "An Intro to OT"
 date:   2015-04-17 17:17:15
+summary: Operational Transformation is a method of building real-time collaborative editors (like Google Docs). It's a big field of research and it can be hard to know where to start. Here are links to a few resources that I found helpful.
 categories:
  - academic-papers
  - collaboration
