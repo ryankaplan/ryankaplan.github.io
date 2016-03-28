@@ -86,6 +86,14 @@ I won't go into more detail than that, because I'd like to keep this post intere
 
 {:/comment}
 
-That's all - thanks for making it this far in the post! As a reward, here's one more demo. On the left is two grids - one of them moving - and on the right is the corresponding Voronoi diagram. Click and drag on either canvas to move one of the grids.
+# So... where's the GPU?
+
+Many methods of generating Voronoi diagrams get slower as you add more seeds. JFA runs in 'constant time' in the sense that it doesn't get slower with more seeds. But that doesn't fully explain why it's fast. When you run JFA on a 512px by 512px image it processes each pixel (i.e. asks those nearby for the closest seed they've found so far) more than 2 million times. If you implement that naively in Javascript, it's going to be too slow to compute on every frame of an interactive demo.
+
+What makes JFA efficient is that it's really well suited to being run on the GPU. So the 2 million computations are done mostly in parallel. I'd like to keep this post interesting for people without graphics programming experience, so I'm not going to dive into the details. For those interested, I recommend reading [Chris Wellon's post where he implements Conway's Game of Life on the GPU](http://nullprogram.com/blog/2014/06/10/).
+
+---
+
+That's all! Thanks for making it this far in the post. As a reward, here's one more demo. The first canvas shows two grids of dots. One of them is moving toward the bottom right. The second canvas shows the corresponding Voronoi diagram. Click and drag on either canvas to control the position of the moving grid.
 
 <div id="grid-demo-container" style="height: 263px; margin: 40px auto;"></div>
