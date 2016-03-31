@@ -43,7 +43,7 @@ The input to JFA is a blank background with some colored seeds on it (like in th
 </div>
 </div>
 
-Every pixel remembers the location - not just the color - of the closest seed that it’s seen so far. When a pixel visits the pixels around it, it compares the location of the seed it remembers (if any) against that of each pixel it visits. If it finds a closer seed, it remembers that instead.
+Every pixel remembers the location - not just the color - of the closest seed that it’s seen so far. When you process a pixel, you compare the location of the seed it remembers (if any) against that of each pixel it visits. If it finds a closer seed, it remembers that instead.
 
 A pixel doesn't need to visit a seed to find out about it. It just needs to visit another pixel that visited it. Or a pixel that visited another pixel that visited it, and so on.
 
