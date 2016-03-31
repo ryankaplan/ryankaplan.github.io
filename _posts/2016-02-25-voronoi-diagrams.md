@@ -22,11 +22,11 @@ What is a Voronoi diagram? Try the demo below to find out. When you click in the
 
 <div id="paint-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
-Demo #2: the first canvas displays a few moving dots. The second canvas shows the corresponding Voronoi diagram. Move your mouse over either canvas to control the location of the yellow dot. I like to pretend that it's a yellow fish swimming in water.
+Demo #2: the first canvas shows a few moving dots. The second canvas shows the corresponding Voronoi diagram. Move your mouse over either canvas to control the location of the yellow dot. I like to pretend that it's a yellow fish swimming in water.
 
 <div id="fish-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
-Here's one more demo that I think is fun. In the first canvas there are seeds in a radial pattern overlaid on top of a photo. Each seed takes the color of the underlying pixel in the image. Move the circular handle to move the seeds and move the square handle to rotate them.
+Here's one more demo that I think is fun. In the first canvas there are seeds in a radial pattern overlaid on top of a photo. Each seed takes the color of the underlying pixel in the image. Drag the circle to move the seeds and drag the square to rotate them.
 
 <div id="photo-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
@@ -39,13 +39,11 @@ The input to JFA is a blank background with some colored seeds on it (like in th
 <div style="width: 100%; text-align: center; margin: 40px auto;">
 <div style="margin: auto; max-width: 400px;">
 <img style="width: 100%; height: 100%;" src="/images/step-k.svg" alt="">
-<div>For each pixel that you process, you look for seeds in each cardinal and intercardinal direction.</div>
+<div>If your step length is 1, then you look at your immediate neighbours. If your step length is 10, then you look 10 pixels in each cardinal and inter-cardinal direction.</div>
 </div>
 </div>
 
-If your round has step length 1, then you look at your immediate neighbours. But if your step length is 10, then you look 10 pixels North, North-West, West, South-West, etc.
-
-At each stage of JFA, every pixel remembers the location - not just the color - of the closest seed that it's seen so far. When a pixel visits the pixels around it, it compares the location of the seed it remembers (if any) against that of each pixel it visits. If it finds a closer seed, it remembers that instead.
+Every pixel remembers the location - not just the color - of the closest seed that it’s seen so far. When a pixel visits the pixels around it, it compares the location of the seed it remembers (if any) against that of each pixel it visits. If it finds a closer seed, it remembers that instead.
 
 A pixel doesn't need to visit a seed to find out about it. It just needs to visit another pixel that visited it. Or a pixel that visited another pixel that visited it, and so on.
 
@@ -54,6 +52,8 @@ The first round of JFA has step length N / 2, where N is the size of the grid. T
 <div id="jfa-pattern-demo-container" style="height: 357px; margin: 40px auto;"></div>
 
 To summarize, JFA works as follows: you walk through every pixel in the grid log(N) times. The first time, you look for seeds in the 8 'neighbours' roughly N / 2 pixels away from the current pixel. The next round you look at the neighbours roughly N / 4 pixels away, and so on. Every pixel holds on to the closest seed that it's found so far and during the course of the algorithm passes that information on to other cells in the grid.
+
+Sometimes you'll give JFA a set of input seeds and it'll produce a subtly wrong result. I won't go into the details of how that happens (<a href="http://www.comp.nus.edu.sg/~tants/jfa/i3d06.pdf" target="_blank">the paper</a> discusses it in sections 5 and 6). I'm bringing it up only so that you don't feel bad for not seeing how the algorithm is totally correct - it's not. But it works well most of the time, like for the demos on this page.
 
 It's interesting to see what the JFA grid looks like at the end of each round. Below is a demo like the one at the top of the page, except there's a slider to set the maximum JFA round number. If you set it to 5, then we stop computing JFA at round 5 and show the result in the second canvas. Try adding a few seeds and moving the slider slowly from round 0 to see what JFA does at each step. I find it really interesting how it all comes together in the last two steps -- before that it doesn't look much like a Voronoi diagram at all.
 
@@ -73,25 +73,12 @@ So how does it work? We render the shape that we want to cast a shadow (in the e
 
 You can drag the canvas above the move the drop shadow, or use the sliders to control spread and blur.
 
-{::comment}
 # So... where's the GPU?
 
-Many methods of generating Voronoi diagrams get slower as you add more seeds. JFA runs in 'constant time' in the sense that it doesn't get slower with more seeds. But that doesn't fully explain why it's fast. When you run JFA on a 512px by 512px image it processes each pixel (i.e. asks those nearby for the closest seed they've found so far) more than 2 million times. If you implement that naively in Javascript, it's going to be too slow to compute on every frame of an interactive demo.
+JFA runs in 'constant time' in the sense that it doesn't get slower with more seeds. But that doesn't fully explain why it's fast. When you run JFA on a 512px by 512px image it processes each pixel (i.e. checks its neighbours for seeds) more than 2 million times. If you implement that naively in Javascript, it's going to be too slow to compute on every frame of an interactive demo.
 
-What makes JFA efficient is that it's really well suited to being run on the GPU. Each round takes an array of input data (the location of the closest seed that each pixel has found so far) and generates an array of output data (the same thing, after each pixel looks are the 8 pixels around it). You don't need to write back to your input array, and you don't need to wait to process the first row of pixels (for example) before you can process the second row.
+What makes JFA efficient is that it's really well suited to being run on the GPU. So the 2 million computations are done mostly in parallel. I just got started with WebGL, so I'm not confident giving a deep dive on how that works. I might do a follow up post once I learn more. If you're curious in the mean time, <a href="http://nullprogram.com/blog/2014/06/10" target="_blank">this article by Chris Wellons</a> is a great, detailed, explanation of how to build Conway's Game of Life on the GPU. It's a similar problem and if you understand that post you'll be on your way to understanding why JFA is fast.
 
-WebGL (and most low-level graphics APIs) provides a way to run code once for every rendered pixel. In my implementation, each JFA round is a single call to WebGL to draw a square to the screen. The rendered image of the square is the same size as the input image to JFA. Each pixel doesn't contain color information. Instead, it contains the location of the closest seed found at that pixel so far.
-
-I won't go into more detail than that, because I'd like to keep this post interesting for people without graphics programming experience. But if you're curious, feel free to check out the [jump-flood](https://github.com/ryankaplan/gpu-voronoi/tree/master/src/jump-flood) folder in the repo or reach out to me directly. This is one of my first graphics projects so any feedback you have is very welcome!
-
-{:/comment}
-
-# So... where's the GPU?
-
-Many methods of generating Voronoi diagrams get slower as you add more seeds. JFA runs in 'constant time' in the sense that it doesn't get slower with more seeds. But that doesn't fully explain why it's fast. When you run JFA on a 512px by 512px image it processes each pixel (i.e. asks those nearby for the closest seed they've found so far) more than 2 million times. If you implement that naively in Javascript, it's going to be too slow to compute on every frame of an interactive demo.
-
-What makes JFA efficient is that it's really well suited to being run on the GPU. So the 2 million computations are done mostly in parallel. I just got started with WebGL, so I'm not going to dive into the details of how that works. If you're curious, I recommend reading [this article by Chris Wellon's where he implements Conway's Game of Life on the GPU](http://nullprogram.com/blog/2014/06/10/).
-
-That's all! Thanks for making it this far in the post. As a reward, here's one more demo. The first canvas shows two grids of dots. One of them is moving toward the bottom right. The second canvas shows the corresponding Voronoi diagram. Click and drag on either canvas to control the position of the moving grid.
+Thanks for making it this far in the post! As a reward, here's one more demo. The first canvas shows two grids of dots. One of them is moving toward the bottom right. The second canvas shows the corresponding Voronoi diagram. Click and drag on either canvas to control the position of the moving grid.
 
 <div id="grid-demo-container" style="height: 263px; margin: 40px auto;"></div>
