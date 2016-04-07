@@ -1,0 +1,24 @@
+<svg width="25" height="24" viewBox="0 0 25 24" version="2.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:figma="http://www.figma.com/figma/ns">
+<title>tool-edge</title>
+<desc>Created using Figma (9000)</desc>
+<g id="Canvas" transform="translate(838 427)" figma:type="canvas">
+<g id="Union" style="mix-blend-mode:normal;" figma:type="vector-operation">
+<use xlink:href="#path0_fill" transform="translate(-836 -416)" fill="#828282" style="mix-blend-mode:normal;"/>
+</g>
+</g>
+<defs>
+<path id="path0_fill" d="
+M 0 1.5
+C 0 2.32843 0.671573 3 1.5 3
+C 2.15311 3 2.70873 2.5826 2.91465 2
+L 18.0854 2
+C 18.2913 2.5826 18.8469 3 19.5 3
+C 20.3284 3 21 2.32843 21 1.5
+C 21 0.671573 20.3284 0 19.5 0
+C 18.8469 0 18.2913 0.417404 18.0854 1
+L 2.91465 1
+C 2.70873 0.417404 2.15311 0 1.5 0
+C 0.671573 0 0 0.671573 0 1.5
+Z"/>
+</defs>
+</svg>

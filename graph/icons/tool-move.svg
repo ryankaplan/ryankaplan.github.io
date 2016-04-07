@@ -1,0 +1,18 @@
+<svg width="25" height="24" viewBox="0 0 25 24" version="2.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:figma="http://www.figma.com/figma/ns">
+<title>tool-move</title>
+<desc>Created using Figma (9000)</desc>
+<g id="Canvas" transform="translate(838 452)" figma:type="canvas">
+<g id="Vector 2" style="mix-blend-mode:normal;" figma:type="vector">
+<use xlink:href="#path0_fill" transform="matrix(0.707107 -0.707107 0.707107 0.707107 -839.76 -442.935)" fill="#828282" style="mix-blend-mode:normal;"/>
+</g>
+</g>
+<defs>
+<path id="path0_fill" d="
+M 8 0
+L 0 19
+L 8 16
+L 16 19
+L 8 0
+Z"/>
+</defs>
+</svg>
