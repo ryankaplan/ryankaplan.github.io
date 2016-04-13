@@ -8,5 +8,5 @@ tags: about
 
 I'm a software engineer at [Figma](https://www.figma.com/). Previously, I spent three years at Dropbox.
 
-I get really excited about cross-platform software development, design, and creative tools. Shoot me an email at  <span>ryan</span><span>ka<span>p</span></span> at gm<span>a</span>il if you ever want to chat :-)
+I get really excited about cross-platform software development, design, and creative tools. You can find me on [Twitter](https://twitter.com/ryanjkaplan) if you want to chat :-)
 
