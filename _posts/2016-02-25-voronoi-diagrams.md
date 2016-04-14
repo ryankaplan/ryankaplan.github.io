@@ -82,3 +82,7 @@ What makes JFA efficient is that it's really well suited to being run on the GPU
 Thanks for making it this far in the post! As a reward, here's one more demo. The first canvas shows two grids of dots. One of them is moving toward the bottom right. The second canvas shows the corresponding Voronoi diagram. Click and drag on either canvas to control the position of the moving grid.
 
 <div id="grid-demo-container" style="height: 263px; margin: 40px auto;"></div>
+
+--
+
+*Like thinking about graphics? We’re hiring creative people at <a href="https://www.figma.com/careers" target="_blank">Figma</a> to work on collaborative graphic design tools.*
