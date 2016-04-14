@@ -83,6 +83,4 @@ Thanks for making it this far in the post! As a reward, here's one more demo. Th
 
 <div id="grid-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
---
-
 *Like thinking about graphics? We’re hiring creative people at <a href="https://www.figma.com/careers" target="_blank">Figma</a> to work on collaborative graphic design tools.*
