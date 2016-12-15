@@ -18,23 +18,37 @@ categories:
 
 ---
 
-What is a Voronoi diagram? Try the demo below to find out. When you click in the first canvas, you plant a colored 'seed'. In the second canvas, every pixel takes the color of the closest seed. You can drag to plant lots of seeds.
+What is a Voronoi diagram? Suppose you have a clean, blank canvas. I rudely walk up to it and paint three dots on it: one blue, one red, one purple. Then I ask you to fill in the rest of the canvas - every inch - with the color of the closest dot. That's a Voronoi diagram! You start with a few dots, and then you color in the rest by using the color of the closest dot.
+
+The demo below does just that. You paint the dots on the first canvas, and some code I wrote will fill in the second canvas with a Voronoi diagram. If you're curious, you can find the code  <a target="_blank" href="https://github.com/ryankaplan/gpu-voronoi">here</a>.
 
 <div id="paint-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
-Demo #2: the first canvas shows a few moving dots. The second canvas shows the corresponding Voronoi diagram. Move your mouse over either canvas to control the location of the yellow dot. I like to pretend that it's a yellow fish swimming in water.
+Anyway, Voronoi diagrams can be pretty cool. In the demo below, the first canvas has some yellow dots moving in some blue dots and the second canvas shows the corresponding Voronoi diagram. I like to pretend that it's a yellow fish swimming in water.
+
+You can move your mouse over either canvas to control the fish.
 
 <div id="fish-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
-Here's one more demo that I think is fun. In the first canvas there are seeds in a radial pattern overlaid on top of a photo. Each seed takes the color of the underlying pixel in the image. Drag the circle to move the seeds and drag the square to rotate them.
+Okay, I know you're probably getting sick of demos, but here's one more that I think is fun...
+
+In the first canvas there are seeds in a radial pattern overlaid on top of a photo. Each seed takes the color of the underlying pixel in the image. Drag the circle to move the seeds and drag the square to rotate them.
 
 <div id="photo-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
 # How does it work?
 
-There are a few popular algorithms for computing Voronoi diagrams. I'll talk about the one that I used to build the demos above (you can find the code for them <a target="_blank" href="https://github.com/ryankaplan/gpu-voronoi">here</a>). The approach is from a paper called <a href="http://www.comp.nus.edu.sg/~tants/jfa.html" target="_blank">Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform</a>. We'll call it JFA - short for Jump Flooding Algorithm.
+If you just want to play with Voronoi diagrams, you can skip to the end of this post. If you wanna know how to generate them really quickly, read on!
 
-The input to JFA is a blank background with some colored seeds on it (like in the first demo above). You iterate over the image in *rounds*, each with a *step length*, k. In a given round you iterate through each pixel (i, j) and look at 8 pixels around it. The 8 pixels that you look at aren't the immediate neighbours. They depend on the step length of the round that you're in. If your round has step length k, then you look at nearby pixels in the pattern shown in the diagram below.
+The code generating Voronoi diagrams on this page uses an approach called 'Jump Flooding'. It's from a paper called <a href="http://www.comp.nus.edu.sg/~tants/jfa.html" target="_blank">Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform</a>. We'll call it JFA because that's a lot to write out.
+
+The input to JFA is a canvas with some colored seeds on it. Since we're dealing with computers, the canvas is an array of pixels.
+
+The algorithm works in "rounds". In a given round you iterate through each pixel in the canvas and look at 8 pixels around it. When I say '8 pixels around it' you're probably thinking of the 8 direct neighbours but THAT'S NOT QUITE RIGHT! When I try to explain this algorithm to friends, this is the main place everyone gets tripped up. So this is a good place to pay attention carefully, I'm going to back-track a bit.
+
+The algorithm works in "rounds". In a given round, you iterate through each pixel in the canvas and look at 8 pixels around it. The 8 pixels that you look at depend on something called the step length, and the step length is different in each round. In round 1, the step length is N / 2 (where N is the width/height of the canvas). In round 2, the step length is N / 4. In step 3, the step length is N / 8, and so on.
+
+The diagram below shows what 'neighbours' we look at when we process each pixel in a round. It uses `k` to represent the step length.
 
 <div style="width: 100%; text-align: center; margin: 40px auto;">
 <div style="margin: auto; max-width: 400px;">
