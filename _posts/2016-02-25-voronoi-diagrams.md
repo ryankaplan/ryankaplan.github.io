@@ -40,7 +40,7 @@ In the first canvas there are seeds in a radial pattern overlaid on top of a pho
 
 If you just want to play with Voronoi diagrams, you can skip to the end of this post. If you wanna know how to generate them really quickly, read on!
 
-The code generating Voronoi diagrams on this page uses an approach called 'Jump Flooding'. It's from a paper called <a href="http://www.comp.nus.edu.sg/~tants/jfa.html" target="_blank">Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform</a>. We'll call it JFA because that's a lot to write out.
+The Voronoi diagrams on this page are generated using an approach called 'Jump Flooding'. It's from a paper called <a href="http://www.comp.nus.edu.sg/~tants/jfa.html" target="_blank">Jump Flooding in GPU with Applications to Voronoi Diagram and Distance Transform</a>. We'll call it JFA because that's a lot to write out.
 
 The input to JFA is a canvas with some colored seeds on it. Since we're dealing with computers, the canvas is an array of pixels.
 
