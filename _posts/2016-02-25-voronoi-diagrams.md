@@ -24,7 +24,7 @@ The demo below does just that. You paint the dots on the first canvas, and some 
 
 <div id="paint-demo-container" style="height: 263px; margin: 40px auto;"></div>
 
-Anyway, Voronoi diagrams can be pretty cool. In the demo below, the first canvas has some yellow dots moving in some blue dots and the second canvas shows the corresponding Voronoi diagram. I like to pretend that it's a yellow fish swimming in water.
+Anyway, Voronoi diagrams can be pretty cool. In the demo below, the first canvas has a yellow dot moving in some blue dots and the second canvas shows the corresponding Voronoi diagram. I like to pretend that it's a yellow fish swimming in water.
 
 You can move your mouse over either canvas to control the fish.
 
