@@ -44,11 +44,18 @@ The Voronoi diagrams on this page are generated using an approach called 'Jump F
 
 The input to JFA is a canvas with some colored seeds on it. Since we're dealing with computers, the canvas is an array of pixels.
 
-The algorithm works in "rounds". In a given round you iterate through each pixel in the canvas and look at 8 pixels around it. When I say '8 pixels around it' you're probably thinking of the 8 direct neighbours but THAT'S NOT QUITE RIGHT! When I try to explain this algorithm to friends, this is the main place everyone gets tripped up. So this is a good place to pay attention carefully, I'm going to back-track a bit.
+The algorithm works in "rounds". In a given round you iterate through each pixel in the canvas and look at 8 pixels around it. When I say '8 pixels around it' you're probably thinking of the 8 direct neighbours but THAT'S NOT QUITE RIGHT! When I try to explain this algorithm to friends, this is the main place everyone gets tripped up. I'll explain this in detail later, but for now just know that in each round you visit each pixel. And for each pixel, you look at SOME 8 pixels around it but not the direct neighbours.
 
-The algorithm works in "rounds". In a given round, you iterate through each pixel in the canvas and look at 8 pixels around it. The 8 pixels that you look at depend on something called the step length, and the step length is different in each round. In round 1, the step length is N / 2 (where N is the width/height of the canvas). In round 2, the step length is N / 4. In step 3, the step length is N / 8, and so on.
+Anyway, suppose you're in a round, and you're processing a pixel at location (i, j), and you're visiting some 8 pixels around it. If you see a seed closer to (i, j) than one you've seen before, you store its color and location. Also if you visit a non-seed that's seen a nearby seed which is closer than one you've seen before - you store that seed's color and location.
 
-The diagram below shows what 'neighbours' we look at when we process each pixel in a round. In the diagram 'k' means step length.
+Here's the second thing almost everyone finds tricky in this algorithm: a pixel doesn't need to visit a seed to find out about it. It just needs to visit another pixel that visited it. Or a pixel that visited another pixel that visited it, and so on.
+
+Take a second to make sure you understand that!
+
+
+Okay, back to the 8 pixels... Suppose you're in a round, and you're processing a pixel, and you're visiting 8 pixels around it. The 8 pixels that you visit depend on something called the step length, and the step length is different in each round. In round 1, the step length is N / 2 (where N is the width/height of the canvas). In round 2, the step length is N / 4. In step 3, the step length is N / 8, and so on. In total there are log(N) rounds.
+
+The diagram below shows what pixels we visit  we look at when we process each pixel in a round. In the diagram 'k' means step length.
 
 <div style="width: 100%; text-align: center; margin: 40px auto;">
 <div style="margin: auto; max-width: 400px;">
@@ -57,11 +64,7 @@ The diagram below shows what 'neighbours' we look at when we process each pixel 
 </div>
 </div>
 
-Every pixel remembers the location - not just the color - of the closest seed that it’s seen so far. When you process a pixel, you compare the location of the seed it remembers (if any) against that of each pixel it visits. If it finds a closer seed, it remembers that instead.
-
-A pixel doesn't need to visit a seed to find out about it. It just needs to visit another pixel that visited it. Or a pixel that visited another pixel that visited it, and so on.
-
-The first round of JFA has step length N / 2, where N is the size of the grid. The next one has step length N / 4. The following has N / 8, and so on until N / k is 1. In total there are log(N) rounds. Below is an interactive demo showing the pattern in which JFA moves through the grid for each round. At each step, it shows the grid cell that we're currently processing and the 8 cells around it that it visits to look for seeds. Use the slider to change which round you're on.
+Below is an interactive demo showing the pattern in which JFA moves through the grid for each round. At each step, it shows the grid cell that we're currently processing and the 8 cells around it that it visits to look for seeds. Use the slider to change which round you're on.
 
 <div id="jfa-pattern-demo-container" style="height: 357px; margin: 40px auto;"></div>
 
