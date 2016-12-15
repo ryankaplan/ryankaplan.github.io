@@ -48,7 +48,7 @@ The algorithm works in "rounds". In a given round you iterate through each pixel
 
 The algorithm works in "rounds". In a given round, you iterate through each pixel in the canvas and look at 8 pixels around it. The 8 pixels that you look at depend on something called the step length, and the step length is different in each round. In round 1, the step length is N / 2 (where N is the width/height of the canvas). In round 2, the step length is N / 4. In step 3, the step length is N / 8, and so on.
 
-The diagram below shows what 'neighbours' we look at when we process each pixel in a round. It uses `k` to represent the step length.
+The diagram below shows what 'neighbours' we look at when we process each pixel in a round. In the diagram 'k' means step length.
 
 <div style="width: 100%; text-align: center; margin: 40px auto;">
 <div style="margin: auto; max-width: 400px;">
