@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <!-- From here: http://stackoverflow.com/a/4389976 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Entropy Demo</title>
+    <script src="entropy-demo.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="style.css" type="text/css">
+  </head>
+  <body>
+    <div class="demo-container">
+      <div class="demo-description">
+        <h2>
+          Entropy Demo
+        </h2>
+        <p>
+          I've read many articles online with differing, vague, descriptions of entropy. But I recently found out that it has a clear mathematical representation!
+        </p>
+
+        <p>
+          Suppose you're performing an experiment which has 5 possible outcomes \(i = {1, ..., 5}\) and they each have a probability \(p(i)\). You can associate a value with the function \(p\) called entropy. It tells you how many outcomes are "reasonably likely". If only one outcome is likely, the entropy is low. If many are likely, it's high.
+        </p>
+
+        <p>
+          The formula for entropy \(E\) is as follows...
+
+          $$
+          E(p) = \sum_{i=1}^{i=N} p(i) \log p(i)
+          $$
+        </p>
+
+        <p>
+          Things to notice about this...
+
+          <ul>
+            <li>
+              If a single outcome has probability \(1\) and the others have probability \(0\), then the entropy will be \(0\). Why? Because when the probability of an outcome is \(0\), the first term in the sum is \(0\) and when the probability is \(1\) the second term in the sum is \(0\).
+            </li>
+            <li>
+              When all outcomes have equal probability, the entropy is at its highest possible value. If \(N = 5\), then this is \( \log_2(5) \approx 2.3\) (exercise: try to prove this!).
+            </li>
+          </ul>
+        </p>
+
+        <p>
+          The demo below lets you play with a probability distribution and see its entropy.
+        </p>
+      </div>
+      <div class="bars-container">
+      </div>
+      <div id="entropy-label" class="entropy-label sans-serif">
+      </div>
+    </div>
+
+    <script>
+      renderMathInElement(document.body);
+    </script>
+  </body>
+</html>

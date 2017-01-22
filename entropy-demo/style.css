@@ -1,0 +1,86 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+
+  color: #333;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.sans-serif {
+  font-family: "Lato", "Helvetica Neue", Helvetica, sans-serif;
+}
+
+.demo-container {
+  max-width: 640px;
+  margin: 40px auto;
+}
+
+.demo-description {
+
+}
+
+.entropy-label {
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 18px;
+}
+
+.bars-container {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  margin: 20px auto;
+}
+
+/* Bar styling */
+
+.bar {
+  border: 1px solid grey;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  width: 60px;
+  height: 10px;
+}
+
+.probabilityLabel {
+  position: absolute;
+  top: -30px;
+  width: 100%;
+  line-height: 18px;
+  text-align: center;
+  text-transform: uppercase;
+  user-select: none;
+  font-size: 16px;
+}
+
+.handle {
+  /*
+   * The handle itself is transparent and large,
+   * so that it's a big click target. The visible
+   * part of the handle is in the ::after element.
+   */
+  height: 40px;
+  margin: -20px auto 0 auto;
+  cursor: move;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.handle::after {
+  content: "";
+  display: inline-block;
+  height: 12px;
+
+  width: 90%;
+  border-radius: 5px;
+  background-color: #CCC;
+  border: 2px solid #999;
+  box-sizing: border-box;
+}
