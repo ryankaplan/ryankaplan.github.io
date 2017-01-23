@@ -22,41 +22,57 @@
         </p>
 
         <p>
-          Suppose you're performing an experiment which has 5 possible outcomes \(i = {1, ..., 5}\) and they each have a probability \(p(i)\). You can associate a value with the function \(p\) called entropy. It tells you how many outcomes are "reasonably likely". If only one outcome is likely, the entropy is low. If many are likely, it's high.
+          Suppose you're performing an experiment which has 5 possible outcomes. We'll label them \(i = {1, ..., 5}\). And suppose that they each occur with probability \(p(i)\). You can associate a value with the function \(p\) called entropy. It tells you how many of the outcomes are "reasonably likely". If only one outcome is likely, the entropy is low. If many are likely, it's high.
         </p>
 
         <p>
-          The formula for entropy \(E\) is as follows...
+          The formula for entropy is as follows...
 
           $$
-          E(p) = \sum_{i=1}^{i=N} p(i) \log p(i)
+          E(p) = - \sum_{i=1}^{i=N} p(i) \log p(i)
           $$
         </p>
 
         <p>
-          Things to notice about this...
-
-          <ul>
-            <li>
-              If a single outcome has probability \(1\) and the others have probability \(0\), then the entropy will be \(0\). Why? Because when the probability of an outcome is \(0\), the first term in the sum is \(0\) and when the probability is \(1\) the second term in the sum is \(0\).
-            </li>
-            <li>
-              When all outcomes have equal probability, the entropy is at its highest possible value. If \(N = 5\), then this is \( \log_2(5) \approx 2.3\) (exercise: try to prove this!).
-            </li>
-          </ul>
+          Let's make sense of this...
         </p>
 
         <p>
-          The demo below lets you play with a probability distribution and see its entropy. You can drag the gray handles to move a bar up or down.
+          First of all, why is there a minus sign in this equation? It's because \(\log x\) is negative when \(x < 0\). Since \(0 < p(i) < 1\), the entropy is a sum of negative values. The minus sign in front is so that entropy is a positive number.
         </p>
 
         <p>
-          Something tricky to be aware of: probabilities are always between \(0\) and \(1\) and the sum of probabilities of all outcomes has to equal \(1\). So when you move a bar around, it affects the probabilities of other bars.
+          Suppose outcome \(1\) has probability \(1\) and all other outcomes have probability \(0\). Then the entropy will be \(0\). Why? Because when \(p(i) = 0\), the first term in the sum is \(0\). And when \(p(i) = 1\), the second term is \(0\) (because \(\log 1 = 0\)). So the whole sum is \(0\).
         </p>
+
+        <p>
+          Suppose all outcomes have equal probability. Then \(p(i) = \dfrac{1}{N}\) for each outcome. The sum becomes...
+
+          $$
+          \begin{aligned}
+          E(p) & = - \sum_{i=1}^{i=N}\dfrac{1}{N} \log \dfrac{1}{N} \\
+               & = - \log \dfrac{1}{N} \\
+               & = \log N
+          \end{aligned}
+          $$
+
+          In words: when all \(N\) outcomes have equal probability, the entropy is \(\log N\). This is the maximum possible entropy for a set of \(N\) outcomes.
+        </p>
+
+        <p>
+          The demo below lets you play with a simple probability distribution and see its entropy. You can drag the gray handles to move a bar up or down.
+        </p>
+
       </div>
       <div class="bars-container">
       </div>
       <div id="entropy-label" class="entropy-label sans-serif">
+      </div>
+
+      <div class="demo-description">
+        <p>
+          Something tricky to be aware of: the sum of probabilities of all outcomes should equal \(1\). When you move a bar around, the demo will shift the probabilities of other bars so that they all sum to \(1\).
+        </p>
       </div>
     </div>
 

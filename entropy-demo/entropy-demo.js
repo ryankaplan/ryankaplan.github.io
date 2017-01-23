@@ -162,30 +162,36 @@ function registerMouseHandlers(env) {
   for (let i = 0; i < bars.length; i++) {
     const handle = getHandle(bars[i]);
     (() => {
-      let mouseDown = -1;
+      let mouseDownY = -1;
 
       onMouseDown(handle, (e) => {
+        // Don't scroll the page.
+        e.preventDefault();
+
         const location = mouseEventLocation(e);
-        mouseDown = location.y;
+        mouseDownY = location.y;
         render(env)
 
         const mouseMoveListeners = onMouseMove(document, (e) => {
-          // Don't scroll the page
+          // Don't scroll the page.
           e.preventDefault();
 
           const location = mouseEventLocation(e);
-          if (mouseDown > 0) {
-            const diff = mouseDown - location.y;
-            mouseDown = location.y;
+          if (mouseDownY > 0) {
+            const diff = mouseDownY - location.y;
+            mouseDownY = location.y;
             distribution[i] += diff;
+
+            const approxProbabilityLabelHeight = 25;
             distribution[i] = Math.max(0, distribution[i]);
-            distribution[i] = Math.min(env.height, distribution[i]);
+            distribution[i] = Math.min(env.height - approxProbabilityLabelHeight, distribution[i]);
           }
+
           render(env)
         })
 
         const mouseUpListeners = onMouseUp(document, () => {
-          mouseDown = -1;
+          mouseDownY = -1;
           render(env);
 
           removeEventListeners(document, mouseMoveListeners);
