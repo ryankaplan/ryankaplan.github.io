@@ -147,7 +147,7 @@ function render(env) {
     bars[i].style.height = `${distribution[i]}px`
 
     const label = getProbabilityLabel(bars[i]);
-    const p = value / distributionTotal;
+    const p = distributionTotal > 0.0001 ? value / distributionTotal : 0;
 		label.innerHTML = `p = ${p.toFixed(2)}`;
 	}
 
