@@ -30,6 +30,20 @@ function removeEventListeners(element, listeners) {
   }
 }
 
+function mouseEventLocation(e) {
+  if (e.touches) {
+    return {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    }
+  } else {
+    return {
+      x: e.clientX,
+      y: e.clientY,
+    }
+  }
+}
+
 // Math helpers
 ////////////////////////////////////////////////////
 
@@ -151,13 +165,18 @@ function registerMouseHandlers(env) {
       let mouseDown = -1;
 
       onMouseDown(handle, (e) => {
-        mouseDown = e.clientY
+        const location = mouseEventLocation(e);
+        mouseDown = location.y;
         render(env)
 
         const mouseMoveListeners = onMouseMove(document, (e) => {
+          // Don't scroll the page
+          e.preventDefault();
+
+          const location = mouseEventLocation(e);
           if (mouseDown > 0) {
-            const diff = mouseDown - e.clientY
-            mouseDown = e.clientY;
+            const diff = mouseDown - location.y;
+            mouseDown = location.y;
             distribution[i] += diff;
             distribution[i] = Math.max(0, distribution[i]);
             distribution[i] = Math.min(env.height, distribution[i]);

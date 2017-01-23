@@ -59,6 +59,13 @@ html, body {
   font-size: 16px;
 }
 
+/* iPhone in landscape and portrait; from here: http://stephen.io/mediaqueries/ */
+@media only screen and (min-device-width : 320px) {
+  .probabilityLabel {
+    font-size: 10px;
+  }
+}
+
 .handle {
   /*
    * The handle itself is transparent and large,
