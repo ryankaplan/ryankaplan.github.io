@@ -1,3 +1,35 @@
+// Browser helpers
+////////////////////////////////////////////////////
+
+function onMouseDown(element, callback) {
+  const result = Object.create(null);
+  result['mousedown'] = callback; element.addEventListener('mousedown', callback);
+  result['touchstart'] = callback; element.addEventListener('touchstart', callback);
+  return result;
+}
+
+function onMouseMove(element, callback) {
+  const result = Object.create(null);
+  result['mousemove'] = callback; element.addEventListener('mousemove', callback)
+  result['touchmove'] = callback; element.addEventListener('touchmove', callback)
+  return result;
+}
+
+function onMouseUp(element, callback) {
+  const result = Object.create(null);
+  result['mouseup'] = callback; element.addEventListener('mouseup', callback);
+  result['mouseleave'] = callback; element.addEventListener('mouseleave', callback);
+  result['touchend'] = callback; element.addEventListener('touchend', callback);
+  return result;
+}
+
+function removeEventListeners(element, listeners) {
+  for (let key in listeners) {
+    const listener = listeners[key];
+    element.removeEventListener(key, listener);
+  }
+}
+
 // Math helpers
 ////////////////////////////////////////////////////
 
@@ -118,11 +150,11 @@ function registerMouseHandlers(env) {
     (() => {
       let mouseDown = -1;
 
-      handle.addEventListener('mousedown', (e) => {
+      onMouseDown(handle, (e) => {
         mouseDown = e.clientY
         render(env)
 
-        document.addEventListener('mousemove', (e) => {
+        const mouseMoveListeners = onMouseMove(document, (e) => {
           if (mouseDown > 0) {
             const diff = mouseDown - e.clientY
             mouseDown = e.clientY;
@@ -133,9 +165,12 @@ function registerMouseHandlers(env) {
           render(env)
         })
 
-        document.addEventListener('mouseup', () => {
-          mouseDown = -1
-          render(env)
+        const mouseUpListeners = onMouseUp(document, () => {
+          mouseDown = -1;
+          render(env);
+
+          removeEventListeners(document, mouseMoveListeners);
+          removeEventListeners(document, mouseUpListeners);
         })
       })
     })()
@@ -144,7 +179,6 @@ function registerMouseHandlers(env) {
 
 const env = {
   // Size of container
-  width: 600,
   height: 400,
 
   // Number of samples in the distribution
@@ -164,6 +198,9 @@ window.onload = () => {
   env.entropyLabel = document.getElementById('entropy-label');
 
   const barsContainer = document.getElementsByClassName('bars-container')[0]
+  const rect = barsContainer.getBoundingClientRect()
+  env.width = rect.width;
+
   barsContainer.style.width = `${env.width}px`
   barsContainer.style.height = `${env.height}px`
   env.bars = createBars(barsContainer, env.numSamples);
