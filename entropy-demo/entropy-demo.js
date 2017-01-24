@@ -1,33 +1,46 @@
 // Browser helpers
 ////////////////////////////////////////////////////
 
+function addEventListeners(element, listenerByEvent) {
+  for (key in listenerByEvent) {
+    const listener = listenerByEvent[key];
+    element.addEventListener(key, listener);
+  }
+}
+
+function removeEventListeners(element, listenerByEvent) {
+  for (let key in listenerByEvent) {
+    const listener = listenerByEvent[key];
+    element.removeEventListener(key, listener);
+  }
+}
+
 function onMouseDown(element, callback) {
-  const result = Object.create(null);
-  result['mousedown'] = callback; element.addEventListener('mousedown', callback);
-  result['touchstart'] = callback; element.addEventListener('touchstart', callback);
-  return result;
+  const listenerByEvent = {
+    mousedown: callback,
+    touchstart: callback,
+  };
+  addEventListeners(element, listenerByEvent);
+  return listenerByEvent;
 }
 
 function onMouseMove(element, callback) {
-  const result = Object.create(null);
-  result['mousemove'] = callback; element.addEventListener('mousemove', callback)
-  result['touchmove'] = callback; element.addEventListener('touchmove', callback)
-  return result;
+  const listenerByEvent = {
+    mousemove: callback,
+    touchmove: callback,
+  };
+  addEventListeners(element, listenerByEvent);
+  return listenerByEvent;
 }
 
 function onMouseUp(element, callback) {
-  const result = Object.create(null);
-  result['mouseup'] = callback; element.addEventListener('mouseup', callback);
-  result['mouseleave'] = callback; element.addEventListener('mouseleave', callback);
-  result['touchend'] = callback; element.addEventListener('touchend', callback);
-  return result;
-}
-
-function removeEventListeners(element, listeners) {
-  for (let key in listeners) {
-    const listener = listeners[key];
-    element.removeEventListener(key, listener);
-  }
+  const listenerByEvent = {
+    mouseup: callback,
+    mouseleave: callback,
+    touchend: callback,
+  };
+  addEventListeners(element, listenerByEvent);
+  return listenerByEvent;
 }
 
 function mouseEventLocation(e) {
@@ -55,7 +68,7 @@ function sum(numbers) {
   return total;
 }
 
-function multipliedArray(distribution, scaleFactor) {
+function multipliedNumbers(distribution, scaleFactor) {
 	const scaled = []
   for (const value of distribution) {
   	scaled.push(value * scaleFactor);
@@ -79,7 +92,7 @@ function normalDistribution(numSamples) {
 // Returns a new distribution whose values are between 0 and 1
 function normalizedDistribution(distribution) {
 	const total = sum(distribution);
-  return multipliedArray(distribution, 1 / total);
+  return multipliedNumbers(distribution, 1 / total);
 }
 
 function entropy(distribution) {
@@ -232,7 +245,7 @@ window.onload = () => {
 
   // Start off with a normal distribution
   env.distribution = normalDistribution(env.bars.length);
-  env.distribution = multipliedArray(env.distribution, 500);
+  env.distribution = multipliedNumbers(env.distribution, 500);
 
   registerMouseHandlers(env);
   render(env);
