@@ -53,7 +53,7 @@ categories:
 </p>
 
 <p>
-  This explains why there's a minus sign in our formula for entropy. The result of the sum is always negative, and it feels good to have entropy be a positive number, so we stick a minus sign in front.
+  This explains why there's a minus sign in our formula for entropy. Each term in the sum is negative, so the result of the sum negative. It feels good to have entropy be a positive number, so we stick a minus sign in front.
 </p>
 
 <p>
@@ -61,19 +61,15 @@ categories:
 </p>
 
 <p>
-  Suppose you have an experiment with \(N\) possible outcomes. Outcome \(1\) has probability \(1\) and all other outcomes have probability \(0\). What's the entropy of this distribution?
+  Suppose you have an experiment with \(N\) outcomes. And let's say that one outcome has probability \(1\) and all other outcomes have probability \(0\). What's the entropy of this distribution?
 </p>
 
 <p>
-  Well, \(p(1) = 1 \log 1 \), which is zero because \(\log 1\) is zero. Likewise, all the other terms are zero because \(p(i)\) is zero. So the whole sum is \(0\).
+  Consider the outcome with probability \(1\). It's term in the sum is \(1 \log 1 \), which is zero because \(\log 1\) is zero. And all the other terms are zero because \(p(i)\) is zero. So the entropy is \(0\).
 </p>
 
 <p>
-  This matches what I said earlier! When entropy is high, many outcomes are likely. When the entropy is low, very few outcomes are likely. In this case only one outcome is likely, so the entropy is low.
-</p>
-
-<p>
-  Suppose all outcomes have equal probability. Then \(p(i) = \dfrac{1}{N}\) for each outcome. The sum becomes...
+  Okay, let's consider another distribution. Suppose all outcomes have equal probability. Then \(p(i) = \dfrac{1}{N}\) for each outcome. The sum becomes...
 </p>
 
 <p>
@@ -88,6 +84,10 @@ categories:
 
 <p>
   In words: when all \(N\) outcomes have equal probability, the entropy is \(\log N\). This is the maximum possible entropy for a set of \(N\) outcomes.
+</p>
+
+<p>
+  These examples matche what I said earlier! When entropy is high, many outcomes are likely. When the entropy is low, very few outcomes are likely. In the first example only one outcome is likely, so the entropy is low. In the second example, all outcomes are equally likely, so the entropy is high.
 </p>
 
 <p>
