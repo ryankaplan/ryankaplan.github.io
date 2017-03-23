@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  A mathematical representation of Entropy.
+title: What the heck is entropy?
 date:   2017-02-23 00:00:00
-summary: A short post on what entropy is (in mathematics) and a demo to help you understand it.
+summary: A short post on how mathematicians define entropy and a demo to help you understand it.
 categories:
  - math
  - physics
@@ -87,7 +87,7 @@ categories:
 </p>
 
 <p>
-  These examples matche what I said earlier! When entropy is high, many outcomes are likely. When the entropy is low, very few outcomes are likely. In the first example only one outcome is likely, so the entropy is low. In the second example, all outcomes are equally likely, so the entropy is high.
+  These examples match what I said earlier! When entropy is high, many outcomes are likely. When the entropy is low, very few outcomes are likely. In the first example only one outcome is likely, so the entropy is low. In the second example, all outcomes are equally likely, so the entropy is high.
 </p>
 
 <p>
