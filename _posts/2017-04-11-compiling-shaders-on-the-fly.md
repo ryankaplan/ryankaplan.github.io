@@ -133,7 +133,12 @@ function toGLSL(astNode) {
     return astNode.variableName;
 
   } else if (astNode.type === 'FUNCTION_CALL') {
-    return astNode.functionName + '(' + astNode.functionArgument + ')';
+    return (
+      astNode.functionName +
+      '(' +
+      toGLSL(astNode.functionArgument) +
+      ')'
+    );
 
   } ...
 }
