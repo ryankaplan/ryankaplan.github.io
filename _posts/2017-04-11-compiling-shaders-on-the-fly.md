@@ -11,45 +11,63 @@ categories:
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<style>
+.gifContainer, .imgContainer {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-Disclaimer: I'm not a computer graphics pro, and there are many people (some of whom I work with) who know way more about this stuff than I do. If you're one of them, and you find mistakes in this article, <a href="https://twitter.com/ryanjkaplan" target="_blank">lemme know!</a>
+.gifContainer a, .imgContainer a {
+  text-decoration: none;
+}
+
+.gifContainer img {
+  border: 1px solid #999;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+</style>
+
+<!-- Something I've been meaning to do is graph the time it takes to (a) iterate through all vertices in a finely divided plane (b) to generate a -->
+
+Disclaimer: I'm not a computer graphics pro, and there are many people (some of whom I work with) who know much more about this stuff than I do. If you're one of them, and you find mistakes in this article, <a href="https://twitter.com/ryanjkaplan" target="_blank">lemme know!</a>
 
 ---
 
-I've been working on a web-based equation grapher called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. In it, a user can input an equation like $z = sin(x) cos(y)$ and the application will render it.
+I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(x) cos(y)$.
 
-One feature I'm proud of is that if you input an equation like $z = sin(p x) cos(p y)$, the application will recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value.
+One feature I'm proud of is that you can give it an equation like $z = sin(p x) cos(p y)$ and it'll recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value.
 
 Here's a screenshot of what I mean...
 
 
-<div style="text-align: center;">
+<div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(p%20x)%20cos(p%20y)&hi=0&va=p~1.00~0.00~1.00~0&c=3.61%2C13.20%2C17.95%7D&l=0.00~1.00~0.00~1.00" target="_blank">
-    <img
-      style="border: 1px solid #999; border-radius: 3px; margin-bottom: 20px;"
-      src="/images/compiling-shaders/wave.gif" />
+    <img src="/images/compiling-shaders/wave.gif" />
   </a>
 </div>
 
-This post is a high level overview of how I built this. My solution involves parsing the user input and using it to generate a vertex shader at run-time. This project involved a few other challenges as well. Figuring out how to render implicit 3D graphs like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a> was really fun. I hope to write more about that later.
+This post is a high level overview of how this works. My solution involves parsing the equation and using it to generate a vertex shader at run-time (I'll explain what a vertex shader is later). This project involved a few other challenges as well. Figuring out how to render implicit 3D graphs like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a> was really fun. I hope to write more about that later.
 
 ## High level approach
 
-At first I tried something like <a href="https://stemkoski.github.io/Three.js/Graphulus-Function.html" target="_blank">this THREE.js demo</a> by Lee Stemkoski. In it, the author creates a triangle mesh and - in Javascript - positions the vertices of the mesh according to the user's equation (THREE.js has a nice wrapper for this logic called `ParametricGeometry`).
+At first I tried something like <a href="https://stemkoski.github.io/Three.js/Graphulus-Function.html" target="_blank">this THREE.js demo</a> by Lee Stemkoski. In it, the author creates a triangle mesh and - in Javascript - positions the vertices of the mesh according to the user's equation. THREE.js has a nice wrapper for this logic called `ParametricGeometry`.
 
-Whenever you change the equation, or variable values, the demo iterates over all vertices in the scene (in Javascript) and repositions them. It works well. But for fine meshes, which are necessary for smooth-looking graphs, it's prohibitively slow. When I implemented it, moving the slider in the GIF above felt really jaggy and I wanted something faster.
+Whenever you change the equation, or the value of a variable like $p$, the demo iterates over all vertices of the mesh (in Javascript) and repositions them. It works well. But for fine meshes, which are necessary for smooth-looking graphs, it's prohibitively slow. When I implemented it, moving the slider for $p$ felt really jaggy and I wanted something faster.
 
 The approach I ended up using is as follows.
 
- - We create a scene with one object: a finely divided flat plane (the plane goes from $(-10, -10)$ to $(10, 10)$ and all its z-values are $0$).
- - We transform the user's equation into a vertex shader that sets the $z$ position of each plane vertex. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. This is really fast because vertex shaders run (mostly in parallel) for each vertex in your scene.
+ - We create a scene with one object in it: a finely divided flat plane (the plane goes from $(-10, -10)$ to $(10, 10)$ and all its z-values are $0$).
+ - We transform the user's equation into a vertex shader that sets the $z$ position of each vertex in the plane. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. This is really fast because vertex shaders run mostly in parallel for each vertex in your scene.
  - Variables like $p$ in the example above are passed to the shader from Javascript via something called a uniform (more on what that is later).
 
 ## Transforming user-input into shaders
 
-Shaders are written in a language called GLSL and are pieces of code that run on the GPU. In WebGL applications, they're often represented as a Javascript string that are passed to WebGL once the page loads.
+Shaders are written in a language called GLSL and are pieces of code that run on the GPU. In WebGL applications, they're often represented as a Javascript string that is passed to WebGL once the page loads.
 
-Passing new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered (and have time to spare!). An examples of a really common WebGL shader is below. It looks intimidating, but we're mostly going to gloss over the details. Don't worry if they're unfamiliar.
+Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered (and have time to spare!)
+
+An examples of a really common WebGL shader is below. If it looks intimidating to you, feel free to skim it. You don't need to understand it in detail right now.
 
 ~~~glsl
 attribute vec3 position;
@@ -69,17 +87,17 @@ void myVertexShader() {
 }
 ~~~
 
-As you'll notice, the shader above contains some complex-looking hokey pokey. For now, this is what you need to know:
+To many people this looks like complex hokey pokey. This is what you need to know:
 
- - This shader is 'standard' in the sense that it'll render vertices to screen in the positions that you expect. If I use it to render a flat plane from $(-10, -10)$ to $(10, 10)$, the rendered image will look like a flat plane from $(-10, -10)$ to $(10, 10)$:
+ - This shader is 'standard' in the sense that it'll render vertices to screen 'in the right place'. If I use it to render a flat plane from $(-10, -10)$ to $(10, 10)$, the rendered image will look like a flat plane from $(-10, -10)$ to $(10, 10)$:
 
-<div style="text-align: center;">
-  <img style="margin-bottom: 20px;" src="/images/compiling-shaders/flat.png" />
+<div class="imgContainer">
+  <img src="/images/compiling-shaders/flat.png" />
 </div>
 
- - It takes in and uses a `position` attribute. This describes the position of each vertex as assigned by Javascript code. In my case, `position.z` will be zero for all vertices because I'm rendering a flat plane.
+ - It uses a variable declared as `attribute vec position`. This is the position of the vertex that is currently being processed. The position is an `attribute` of the vertex, assigned by Javascript code. Since we're rendering a flat plane, `position.z` will be zero for all vertices. `position.x` and `position.y` will range from $-10$ to $10$.
 
-When a user types in a new equation like $z = sin(x p) cos(y p)$, I want to generate a slightly different shader that uses a modified `position` value.
+We want to modify this shader so that where ever it currently uses `position`, it uses a copy of `position` with the z-value set according to the users equation. The way we'll do that is as follows: when a user types in an equation like $z = sin(x p) cos(y p)$, we'll generate a shader like this one:
 
 ~~~glsl
 // These are the same as before.
@@ -106,9 +124,15 @@ void myVertexShader() {
 }
 ~~~
 
-Here's a new, important, piece of information you need. The code above declares a variable called `var_p` and it's marked as a `uniform`. A uniform is a variable that's passed from Javascript to a shader. It's called a `uniform` because its value stays the same for each invocation of the shader.
+This shader uses something called `userDefinedPosition()` instead of `position`. `userDefinedPosition()` is a function that we generated based on user input, and it returns a vector like `position` except its z-value has been set according to the user's equation.
+
+If it seems weird to you that we're generating code while the application is running, you're not alone. But it works! WebGL shaders can be defined at run-time and you can pass new ones to WebGL pretty much any time you like.
+
+Here's a new, important, piece of information you need. The code above declares a variable called `var_p` and it's marked as a `uniform`. A uniform is a variable that's passed from Javascript to a shader. It's called a `uniform` because its value stays the same for each invocation of the shader in a given render.
 
 The variable $p$ in the user's equation is represented as a uniform. That means that we can update its value from Javascript without having to generate an entirely new shader.
+
+<!-- TODO(ryan): say more about this and how setting a uniform is much faster than generating a shader -->
 
 Most of the shader above is boilerplate. We'll have solved our problem if we can turn the user-defined equation into...
 
@@ -218,15 +242,11 @@ In summary: if the user-input is $z = sin(x p) cos(y p)$, we should generate the
 
 ## Conclusion
 
-A lot of the fun of working with WebGL is in finding ways to do seemingly slow things (like positioning thousands of vertices) in shaders, because shaders are run largely in parallel. This makes them much faster than doing the work serially on the CPU.
+A lot of the fun of working with WebGL is in finding ways to do things which are usually slow (like positioning thousands of vertices) in parallel on the GPU. In this article, I explained how you can achieve real-time manipulable graphs by positioning that graph's vertices on the GPU instead of with Javascript. Hopefully it was helpful! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
 
-In this article, I explained how you can achieve real-time manipulable graphs by positioning that graph's vertices on the GPU instead of with Javascript.
-
-Hopefully this was helpful! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
-
-<div style="text-align: center;">
+<div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">
-    <img style="border: 1px solid #999; border-radius: 3px; margin-bottom: 20px;" src="/images/compiling-shaders/cool.gif" />
+    <img src="/images/compiling-shaders/cool.gif" />
   </a>
 </div>
 
