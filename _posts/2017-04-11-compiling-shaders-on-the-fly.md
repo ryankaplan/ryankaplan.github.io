@@ -34,13 +34,9 @@ categories:
 
 <!-- Something I've been meaning to do is graph the time it takes to (a) iterate through all vertices in a finely divided plane (b) to generate a -->
 
-Disclaimer: I'm not a computer graphics pro, and there are many people (some of whom I work with) who know much more about this stuff than I do. If you're one of them, and you find mistakes, <a href="https://twitter.com/ryanjkaplan" target="_blank">lemme know!</a>
-
----
-
 I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(x) cos(y)$.
 
-One feature I'm proud of is that you can give it an equation like $z = sin(p x) cos(p y)$ and it'll recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value.
+One feature I'm proud of is that you can give it an equation like $z = sin(x p) cos(y p)$ and it'll recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value.
 
 Here's a screenshot of what I mean...
 
@@ -52,7 +48,7 @@ Here's a screenshot of what I mean...
 
 This post is a high level overview of how this works. My first attempt at building it was too slow. I'd like to talk about the current version which is much faster, and some of what I learned building it.
 
-Also, this post is mostly about rendering explicit 3D graphs. Curve Grapher also renders implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
+Also, this post is about rendering explicit 3D equations (equations where the right hand size depends only on $x$ and $y$, like $z = x + sin(y)$). Curve Grapher also renders implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
 
 ## High level approach
 
@@ -66,17 +62,17 @@ Whenever you change the equation, or the value of a variable, you have to re-gen
 
 The approach I ended up using is as follows.
 
- - We create a scene with one finely divided mesh in it: a flat plane. Instead of positioning the vertices according to the user's equation, we position them in the range $(-10, -10)$ to $(10, 10)$ and set all the z-values are $0$.
+ - We create a scene with one finely divided: a flat plane. Instead of positioning the vertices according to the user's equation, we position them in the range $(-10, -10)$ to $(10, 10)$ and set all their z-values to $0$.
  - We transform the user's equation into a vertex shader that sets the $z$ position of each vertex in the plane. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. This is really fast because vertex shaders run mostly in parallel for each vertex in your scene.
  - Variables like $p$ in the example above are passed to the shader from Javascript via something called a uniform (I'll say more about what that is later).
 
-To illustrate how much faster this approach is than setting vertex positions in `Javascript`, here's a graph of how long it takes each approach to prepare to render the equation $z = sin(p x) cos(p x)$ on a mesh with 40 000 vertices:
+To illustrate how much faster this approach is than setting vertex positions in Javascript, here's a graph of how long it takes each approach to prepare to render the equation $z = sin(x p) cos(y p)$ on a mesh with 40 000 vertices:
 
 <div style="text-align: center;">
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/timing.svg" />
 </div>
 
-Hopefully that's convincing to you! $397ms$ is too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I'll talk about is fast enough to make slider manipulation feel smooth.
+This is just one sample on my laptop. It's not exactly scientific, but it should still be convincing to you. $397ms$ is too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I mentioned above is fast enough to make slider manipulation feel smooth.
 
 ## Transforming user-input into shaders
 
@@ -87,15 +83,17 @@ Passing a new shader to WebGL is surprisingly fast. You can do it in the time be
 An example of a really common WebGL shader is below. If it looks intimidating to you, feel free to skim it. You don't need to understand it in detail right now.
 
 ~~~glsl
+// These variables are passed to the shader from Javascript
+// code. More on that below.
 attribute vec3 position;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 
 void myVertexShader() {
-  // gl_Position is a special variable to which
-  // we assign the output, position. You can
-  // think of it as the return value of this
-  // function.
+  // We assign the final vertex position to
+  // gl_Position. gl_Position is a magical
+  // variable that you can think of as the
+  // return value of this function.
   gl_Position = (
     projectionMatrix *
     modelViewMatrix *
@@ -112,7 +110,9 @@ The first is that this shader is "standard". I feel bad saying that because it c
   <img src="/images/compiling-shaders/flat.png" />
 </div>
 
-The second important thing to know is that it uses a variable declared as `attribute vec3 position`. Vertex shaders are run on the GPU in parallel. Each time the function in the shader is invoked, it's for a new vertex. The `position` variable holds the position of the vertex being processed. The `attribute` modifier says that it was assigned to the triangle mesh by our Javascript code before the scene was rendered. Since we're rendering a flat plane, `position.z` will be zero for all vertices. `position.x` and `position.y` will range from $-10$ to $10$.
+The second important thing to know is that it uses a variable declared as `attribute vec3 position`. Vertex shaders are run on the GPU in parallel. Each time the function in the shader is invoked, it's for a new vertex. The `position` variable holds the position of the vertex being processed.
+
+The `attribute` keyword before the declaration of `position` says that it was assigned to the triangle mesh by our Javascript code before the scene was rendered. Since we're rendering a flat plane, `position.z` will be zero for all vertices. `position.x` and `position.y` will range from $-10$ to $10$.
 
 How might we alter this shader so that, instead of rendering a flat plane, it renders the graph of $z = sin(x p) cos(y p)$? Here's one approach:
 
@@ -145,7 +145,7 @@ This shader uses a function called `userDefinedPosition()` instead of `position`
 
 Here's a new, important, piece of information: the code above declares a variable called `var_p` and it's marked as a `uniform`. A uniform is a variable that's passed from Javascript to a shader. It's called a `uniform` because its value stays the same for each vertex processed by the shader.
 
-The variable $p$ in the user's equation is represented as a uniform. That means that we can update its value from Javascript without having to generate an entirely new shader.
+Because the variable $p$ in the user's equation is represented as a uniform, we can update its value from Javascript without generating a new shader.
 
 <!-- TODO(ryan): say more about this and how setting a uniform is much faster than generating a shader -->
 
@@ -160,7 +160,7 @@ If it seems weird to you that we're generating code while the application is run
 
 ## Parsing
 
-A parser is software that takes in a piece of code as input and spits out something called an Abstract Syntax Tree (AST). As an example, it might take an expression like $z = sin(x p) cos(y p)$ and turn it into this:
+A parser is a piece of code that takes _some other_ piece of code as input and spits out something called an Abstract Syntax Tree (AST). As an example, it might take an expression like $z = sin(x p) cos(y p)$ and turn it into this:
 
 <div style="text-align: center;">
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/ast.svg" />
@@ -182,7 +182,7 @@ const node = {
   type: 'TIMES',
 
   // children is an array of
-  // nodes .
+  // nodes.
   children: [{
     type: 'VARIABLE',
     name: 'y',
@@ -195,7 +195,7 @@ const node = {
 }
 ~~~
 
-Each node of the tree has a type and one or more children. Nodes that represent variables like $x$ and $p$ have type VARIABLE, in which case they have a name attribute as well.
+Each node of the tree has a type and a list of children (which might be empty). Nodes that represent variables like $x$ and $p$ have type `VARIABLE`, in which case they have a name attribute as well.
 
 There are many good open-source equation parsers online. And it would have been faster for me to find one and use it. But I've felt for a while that parsing and compiler technology is out of my reach and I wanted to stop feeling that way. So I decided to try to build one myself.
 
@@ -214,23 +214,13 @@ Given an AST, we want to...
  - Find variables that aren't co-ordinates, so that we can generate uniform declarations for them (like `uniform float var_p;`) and so that we can show sliders for them in the UI.
  - Generate a string containing GLSL code that computes the right hand side of the user's equation. In our example this is `sin(x * var_p) * cos(y * var_p)`.
 
-The first task is solved by looking at each node in your AST and keeping track any nodes of type VARIABLE whose name isn't `x` or `y`.
+The first task is solved by looking at each node in your AST and keeping track any nodes of type `VARIABLE` whose name isn't `x` or `y`.
 
 To solve the second task, I have a function like the following that walks over the tree and builds the GLSL code. Here's a really simplified example of the real function that does this:
 
 ~~~js
 function toGLSL(node) {
-  if (node.type === 'PLUS') {
-    return (
-      toGLSL(node.children[0]) +
-      ' + ' +
-      toGLSL(node.children[1])
-    );
-
-  } else if (...) {
-    ...
-
-  } else if (node.type === 'VARIABLE') {
+  if (node.type === 'VARIABLE') {
     if (node.name === 'x' || node.name === 'y') {
       return node.name;
     }
@@ -245,17 +235,31 @@ function toGLSL(node) {
       '(' + node.children.map(toGLSL).join(', ') + ')'
     );
 
+  } else if (node.type === 'PLUS') {
+    return (
+      toGLSL(node.children[0]) +
+      ' + ' +
+      toGLSL(node.children[1])
+    );
+
+  } else if (...) {
+    ...
+
   } ...
+
 }
 ~~~
 
-That's it! In summary: if the user-input is $z = sin(x p) cos(y p)$, we should generate the following AST...
+This function takes in an AST and returns code like `sin(x * var_p) * cos(y * var_p)`. And that's it!
+
+
+In summary: if the user-input is $z = sin(x p) cos(y p)$, we should generate the following AST...
 
 <div style="text-align: center;">
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/ast.svg" />
 </div>
 
-... which should generate the GLSL `z = sin(x * p) + cos(y * p)`. We splice this into a template string to generate the desired vertex shader above, and tell WebGL to use that vertex shader when rendering the mesh.
+... which should generate the code above. We stuff this into a template string to generate the desired vertex shader above, and tell WebGL to use that vertex shader when rendering the mesh.
 
 ## Conclusion
 
