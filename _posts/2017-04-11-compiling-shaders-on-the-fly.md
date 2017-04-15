@@ -72,19 +72,19 @@ To illustrate how much faster this approach is than setting vertex positions in 
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/timing.svg" />
 </div>
 
-This is just one sample on my laptop. It's not exactly scientific, but it should still be convincing to you. $397ms$ is too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I mentioned above is fast enough to make slider manipulation feel smooth.
+This is just one sample on my laptop. It's not exactly scientific, but it should still be convincing to you. $397ms$ is way too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I talk about in this post is fast enough to make slider manipulation feel smooth.
 
 ## Transforming user-input into shaders
 
-WebGL Shaders are pieces of code written in a language called GLSL. Unlike the Javascript code running on this webpage, they run on the GPU. In WebGL applications, they often start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
+WebGL Shaders are pieces of code written in a language called GLSL. Unlike the Javascript code running on this webpage, they run on the GPU. In WebGL applications, they start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
 
 Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered (and have time to spare!)
 
 An example of a really common WebGL shader is below. If it looks intimidating to you, feel free to skim it. You don't need to understand it in detail right now.
 
 ~~~glsl
-// These variables are passed to the shader from Javascript
-// code. More on that below.
+// These variables are passed to the shader
+// from Javascript code. More on that below.
 attribute vec3 position;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
@@ -114,7 +114,7 @@ The second important thing to know is that it uses a variable declared as `attri
 
 The `attribute` keyword before the declaration of `position` says that it was assigned to the triangle mesh by our Javascript code before the scene was rendered. Since we're rendering a flat plane, `position.z` will be zero for all vertices. `position.x` and `position.y` will range from $-10$ to $10$.
 
-How might we alter this shader so that, instead of rendering a flat plane, it renders the graph of $z = sin(x p) cos(y p)$? Here's one approach:
+Suppose we change this shader so that, instead of rendering a flat plane, it renders the graph of $z = sin(x p) cos(y p)$. Here's what it might look like:
 
 ~~~glsl
 // These are the same as before.
@@ -154,13 +154,13 @@ Most of the shader above is boilerplate. We'll have solved our problem if we can
  - A list of uniforms for variables, like `uniform float var_p;`
  - An expression for the z-value of a vertex, like `sin(x * var_p) * cos(y * var_p)`
 
-The rest of the shader above could be a template string into which we splice the uniforms and z-position expression. Then, whenever a user enters a new equation, we can splice togther a new shader and pass that to WebGL.
+The rest of the shader above could be a template string into which we splice the uniforms and z-position expression. Then, whenever a user enters a new equation, we can generate a new shader and pass that to WebGL.
 
 If it seems weird to you that we're generating code while the application is running, you're not alone. But it works! WebGL shaders can be defined at run-time and you can pass new ones to WebGL pretty much any time you like.
 
 ## Parsing
 
-A parser is a piece of code that takes _some other_ piece of code as input and spits out something called an Abstract Syntax Tree (AST). As an example, it might take an expression like $z = sin(x p) cos(y p)$ and turn it into this:
+A parser is a piece of code that takes some other piece of code as input and spits out something called an Abstract Syntax Tree (AST). As an example, it might take an expression like $z = sin(x p) cos(y p)$ and turn it into this:
 
 <div style="text-align: center;">
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/ast.svg" />
@@ -199,7 +199,7 @@ Each node of the tree has a type and a list of children (which might be empty). 
 
 There are many good open-source equation parsers online. But I've felt for a while that parsing and compiler technology is out of reach, and in an attempt to stop feeling that way I decided to build my own. My parser uses a technique called Pratt Parsing. If you're interested in learning more about it, I highly this article <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/" target="_blank">this article</a>. I also found it helpful to read the source code for <a href="https://github.com/evanw/glslx" target="_blank">GLSLX</a>, a GLSL type checker. It uses a Pratt Parser to parse expressions in GLSL code.
 
-Anyway, my parser gave me a way to turn the user's equation into an AST. The next step in our process is turning an AST into GLSL code.
+My parser gave me a way to turn the user's equation into an AST. The next step in our process is turning an AST into GLSL code.
 
 ## GLSL generation
 
