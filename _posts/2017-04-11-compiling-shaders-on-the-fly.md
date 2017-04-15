@@ -78,6 +78,7 @@ To illustrate how much faster this approach is than setting vertex positions in 
 
 Hopefully that's convincing to you! $397ms$ is too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I'll talk about is fast enough to make slider manipulation feel smooth.
 
+
 ## Transforming user-input into shaders
 
 WebGL Shaders are pieces of code written in a language called GLSL. Unlike the Javascript code running on this webpage, they run on the GPU. In WebGL applications, they often start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
