@@ -32,6 +32,10 @@ categories:
 }
 </style>
 
+Disclaimer: I'm not a graphics pro! If there are bugs in this post, or you know of a better way to do the things it talks about, <a href="https://www.twitter.com/ryanjkaplan">lemme know!</a>
+
+---
+
 <!-- Something I've been meaning to do is graph the time it takes to (a) iterate through all vertices in a finely divided plane (b) to generate a -->
 
 I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(x) cos(y)$.
