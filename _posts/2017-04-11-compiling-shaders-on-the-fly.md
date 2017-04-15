@@ -78,7 +78,6 @@ To illustrate how much faster this approach is than setting vertex positions in 
 
 Hopefully that's convincing to you! $397ms$ is too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I'll talk about is fast enough to make slider manipulation feel smooth.
 
-
 ## Transforming user-input into shaders
 
 WebGL Shaders are pieces of code written in a language called GLSL. Unlike the Javascript code running on this webpage, they run on the GPU. In WebGL applications, they often start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
@@ -196,7 +195,7 @@ const node = {
 }
 ~~~
 
-In general, each node of the tree would have a type and one or more children, along with a name if its of type `VARIABLE`.
+Each node of the tree has a type and one or more children. Nodes that represent variables like $x$ and $p$ have type VARIABLE, in which case they have a name attribute as well.
 
 There are many good open-source equation parsers online. And it would have been faster for me to find one and use it. But I've felt for a while that parsing and compiler technology is out of my reach and I wanted to stop feeling that way. So I decided to try to build one myself.
 
@@ -206,18 +205,18 @@ GLSLX uses a technique called Pratt Parsing to parse GLSL code. The name is inti
 
 An unexpected bonus of writing my own parser is that I get full control over its error messages. I've tried to provide error messages in Curve Grapher's UI that are helpful and at the right level of detail for the user. If you have suggestions for how they could be better, please let me know!
 
-The next step in our process is turning an AST into GLSL code.
+Anyway, my parser gave me a way to turn the user's equation into an AST. The next step in our process is turning an AST into GLSL code.
 
 ## GLSL generation
 
-Once we have an AST, the goal is to...
+Given an AST, we want to...
 
- - Find variables that aren't co-ordinates, so that we can generate uniform declarations for them (like `uniform float var_p;`)
- - Generate a string like `sin(x * var_p) * cos(y * var_p)` so we can stuff it into our shader code
+ - Find variables that aren't co-ordinates, so that we can generate uniform declarations for them (like `uniform float var_p;`) and so that we can show sliders for them in the UI.
+ - Generate a string containing GLSL code that computes the right hand side of the user's equation. In our example this is `sin(x * var_p) * cos(y * var_p)`.
 
-The first task is solved by looking at each node in your AST and keeping track of the `VARIABLE`s that you find whose name isn't `x` or `y`.
+The first task is solved by looking at each node in your AST and keeping track any nodes of type VARIABLE whose name isn't `x` or `y`.
 
-To solve the second task, I have a function like the following that walks over the tree and builds the GLSL code. Here's a very simplified example of what that function might look like:
+To solve the second task, I have a function like the following that walks over the tree and builds the GLSL code. Here's a really simplified example of the real function that does this:
 
 ~~~js
 function toGLSL(node) {
@@ -260,7 +259,7 @@ That's it! In summary: if the user-input is $z = sin(x p) cos(y p)$, we should g
 
 ## Conclusion
 
-A lot of what I find exciting about WebGL (and programming in general) is finding ways to take tasks that are slow and making them fast enough to feel interactive. In this article, I explained how you can achieve real-time manipulable 3D graphs by positioning that graph's vertices on the GPU in a vertex shader. Hopefully it was interesting to you! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
+A lot of what I find exciting about WebGL is finding ways to take tasks that are slow and making them fast enough to feel interactive. In this article, I explained how you can achieve real-time manipulable 3D graphs by positioning that graph's vertices on the GPU in a vertex shader. Hopefully it was interesting to you! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
 
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">
