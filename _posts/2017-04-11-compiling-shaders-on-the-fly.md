@@ -197,13 +197,7 @@ const node = {
 
 Each node of the tree has a type and a list of children (which might be empty). Nodes that represent variables like $x$ and $p$ have type `VARIABLE`, in which case they have a name attribute as well.
 
-There are many good open-source equation parsers online. And it would have been faster for me to find one and use it. But I've felt for a while that parsing and compiler technology is out of my reach and I wanted to stop feeling that way. So I decided to try to build one myself.
-
-My first step in doing this was finding an open source project that (a) uses a parser and (b) isn't crazy advanced. I poked around in the source code of <a href="https://github.com/evanw/glslx" target="_blank">GLSLX</a>, a GLSL type checker. I use GLSLX all the time, so I found it approachable. Most of my time was spent changing small parts of its parser and seeing how it changed its input/output.
-
-GLSLX uses a technique called Pratt Parsing to parse GLSL code. The name is intimidating, but <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/" target="_blank">this article</a> really helped me understand it. I won't go into the details here - the article does a far better job than I would. But it helped me write a parser for input equations.
-
-An unexpected bonus of writing my own parser is that I get full control over its error messages. I've tried to provide error messages in Curve Grapher's UI that are helpful and at the right level of detail for the user. If you have suggestions for how they could be better, please let me know!
+There are many good open-source equation parsers online. But I've felt for a while that parsing and compiler technology is out of reach, and in an attempt to stop feeling that way I decided to build my own. My parser uses a technique called Pratt Parsing. If you're interested in learning more about it, I highly this article <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/" target="_blank">this article</a>. I also found it helpful to read the source code for <a href="https://github.com/evanw/glslx" target="_blank">GLSLX</a>, a GLSL type checker. It uses a Pratt Parser to parse expressions in GLSL code.
 
 Anyway, my parser gave me a way to turn the user's equation into an AST. The next step in our process is turning an AST into GLSL code.
 
