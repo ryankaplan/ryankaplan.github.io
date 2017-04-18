@@ -36,19 +36,18 @@ categories:
 
 I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(x) cos(y)$.
 
-One feature I'm proud of is that you can give it an equation like $z = sin(x p) cos(y p)$ and it'll recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value.
-
-Here's a screenshot of what I mean...
-
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(p%20x)%20cos(p%20y)&hi=0&va=p~1.00~0.00~1.00~0&c=3.61%2C13.20%2C17.95%7D&l=0.00~1.00~0.00~1.00" target="_blank">
     <img src="/images/compiling-shaders/wave.gif" />
   </a>
 </div>
 
-This post is a high level overview of how this works. My first attempt at building it was too slow. I'd like to talk about the current version which is much faster, and some of what I learned building it.
 
-Also, this post is about rendering explicit 3D equations (equations where the right hand size depends only on $x$ and $y$, like $z = x + sin(y)$). Curve Grapher also renders implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
+You can give it an equation like $z = sin(x p) cos(y p)$ and it'll recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value and update the graph in real time!
+
+This post is a high level overview of how this works. My first attempt at building it was too slow. I'll talk about the current version which is much faster, and some of what I learned building it.
+
+Lastly, this post is about rendering explicit 3D equations (equations where the right hand size depends only on $x$ and $y$, like $z = x + sin(y)$). Curve Grapher also renders implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
 
 ## High level approach
 
@@ -56,14 +55,14 @@ The high level API of THREE.js (and many graphics engines) is that you tell it t
 
 When a collection of triangles form something cohesive, like a 3D graph, we often refer to that collection as a 'mesh'.
 
-My first approach to building an equation grapher was something like <a href="https://stemkoski.github.io/Three.js/Graphulus-Function.html" target="_blank">this THREE.js demo</a> by Lee Stemkoski. In it, the author creates a triangle mesh and - in Javascript - positions the vertices of the mesh according to the user's equation. THREE.js has a nice wrapper for this logic called `ParametricGeometry`.
+My first approach to building an equation grapher was something like <a href="https://stemkoski.github.io/Three.js/Graphulus-Function.html" target="_blank">this THREE.js demo</a>. In it, the author creates a triangle mesh and - in Javascript - positions the vertices of the mesh according to the user's equation. THREE.js has a nice wrapper for this logic called `ParametricGeometry`.
 
-Whenever you change the equation, or the value of a variable, you have to re-generate the mesh. To do this, the demo iterates over all vertices (in Javascript) and repositions them. It works well. But for fine meshes, which are necessary for smooth-looking graphs, it's prohibitively slow. When I implemented this method of rendering graphs, moving the slider for $p$ felt really jaggy and I wanted something faster.
+When you change the equation, you have to update all the vertex positions. To do this, the demo iterates over all vertices (in Javascript) and repositions them. It works well. But for fine meshes, it's prohibitively slow. When I implemented my grapher this way, moving a variable slider felt really jaggy and I wanted something faster.
 
 The approach I ended up using is as follows.
 
- - We create a scene with one finely divided: a flat plane. Instead of positioning the vertices according to the user's equation, we position them in the range $(-10, -10)$ to $(10, 10)$ and set all their z-values to $0$.
- - We transform the user's equation into a vertex shader that sets the $z$ position of each vertex in the plane. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. This is really fast because vertex shaders run mostly in parallel for each vertex in your scene.
+ - We create a scene with one mesh: a flat plane. Instead of positioning the vertices according to the user's equation, we position them in the range $(-10, -10)$ to $(10, 10)$ and set all their z-values to $0.$
+ - We use the user's equation to generate a vertex shader that sets the $z$ position of each vertex in the plane. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. Vertex shaders are run mostly in parallel on the GPU, so setting vertex positions this way is really fast.
  - Variables like $p$ in the example above are passed to the shader from Javascript via something called a uniform (I'll say more about what that is later).
 
 To illustrate how much faster this approach is than setting vertex positions in Javascript, here's a graph of how long it takes each approach to prepare to render the equation $z = sin(x p) cos(y p)$ on a mesh with 40 000 vertices:
@@ -72,13 +71,13 @@ To illustrate how much faster this approach is than setting vertex positions in 
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/timing.svg" />
 </div>
 
-This is just one sample on my laptop. It's not exactly scientific, but it should still be convincing to you. $397ms$ is way too slow to feel interactive (humans will pick up on UI delays of $30ms$ and up) whereas the approach I talk about in this post is fast enough to make slider manipulation feel smooth.
+This is just one sample on my laptop. It's not exactly scientific, but it should still be convincing to you. $397ms$ is _way_ too slow to feel interactive. The approach I talk about in this post is fast enough to make slider manipulation feel smooth.
 
 ## Transforming user-input into shaders
 
 WebGL Shaders are pieces of code written in a language called GLSL. Unlike the Javascript code running on this webpage, they run on the GPU. In WebGL applications, they start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
 
-Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered (and have time to spare!)
+Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered (and have time to spare!) There are <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=113009" target="_blank">some exceptions on Windows</a>, but that hasn't been a problem for me in practice.
 
 An example of a really common WebGL shader is below. If it looks intimidating to you, feel free to skim it. You don't need to understand it in detail right now.
 
@@ -257,7 +256,9 @@ In summary: if the user-input is $z = sin(x p) cos(y p)$, we should generate the
 
 ## Conclusion
 
-A lot of what I find exciting about WebGL is finding ways to take tasks that are slow and making them fast enough to feel interactive. In this article, I explained how you can achieve real-time manipulable 3D graphs by positioning that graph's vertices on the GPU in a vertex shader. Hopefully it was interesting to you! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
+In this article, I explained how you can achieve real-time manipulable 3D graphs by positioning vertices in a vertex shader. More generally, generating shaders at runtime is a powerful method of building realtime-interactive applications and something I plan to explore more deeply.
+
+Hopefully this was interesting to you! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
 
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">
