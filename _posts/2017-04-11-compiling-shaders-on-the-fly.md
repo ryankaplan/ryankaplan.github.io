@@ -34,7 +34,7 @@ categories:
 
 <!-- Something I've been meaning to do is graph the time it takes to (a) iterate through all vertices in a finely divided plane (b) to generate a -->
 
-I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(x) cos(y)$.
+I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(p x) cos(p y)$.
 
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(p%20x)%20cos(p%20y)&hi=0&va=p~1.00~0.00~1.00~0&c=3.61%2C13.20%2C17.95%7D&l=0.00~1.00~0.00~1.00" target="_blank">
@@ -42,12 +42,11 @@ I've been working on something called <a href="https://curvegrapher.com" target=
   </a>
 </div>
 
-
-You can give it an equation like $z = sin(x p) cos(y p)$ and it'll recognize that $p$ isn't a co-ordinate. It'll treat it as a variable and give you a slider to change its value and update the graph in real time!
+In the example above, the application realizes that $p$ isn't a co-ordinate. It shows a slider which lets you change its value and update the graph in real time!
 
 This post is a high level overview of how this works. My first attempt at building it was too slow. I'll talk about the current version which is much faster, and some of what I learned building it.
 
-Lastly, this post is about rendering explicit 3D equations (equations where the right hand size depends only on $x$ and $y$, like $z = x + sin(y)$). Curve Grapher also renders implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
+Also, this post is about rendering explicit 3D equations (where the right hand side depends only on $x$ and $y$). Curve Grapher handles implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
 
 ## High level approach
 
