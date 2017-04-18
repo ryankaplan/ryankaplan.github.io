@@ -46,39 +46,39 @@ In the example above, the application realizes that $p$ isn't a co-ordinate. It 
 
 This post is a high level overview of how this works. My first attempt at building it was too slow. I'll talk about the current version which is much faster, and some of what I learned building it.
 
-Also, this post is about rendering explicit 3D equations (where the right hand side depends only on $x$ and $y$). Curve Grapher handles implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
+Also, this post is about rendering explicit 3D equations (where the right hand side depends only on $x$ and $y$). Curve Grapher also handles implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
 
 ## High level approach
 
 The high level API of THREE.js (and many graphics engines) is that you tell it to render a collection of triangles in 3D, and it does it. You position a triangle by telling THREE.js where each of its vertices are.
 
-When a collection of triangles form something cohesive, like a 3D graph, we often refer to that collection as a 'mesh'.
+When a collection of triangles form something cohesive, like a graph, we call it a _mesh_.
 
-My first approach to building an equation grapher was something like <a href="https://stemkoski.github.io/Three.js/Graphulus-Function.html" target="_blank">this THREE.js demo</a>. In it, the author creates a triangle mesh and - in Javascript - positions the vertices of the mesh according to the user's equation. THREE.js has a nice wrapper for this logic called `ParametricGeometry`.
+My first approach to building a grapher was something like <a href="https://stemkoski.github.io/Three.js/Graphulus-Function.html" target="_blank">this THREE.js demo</a>. In it, the author creates a mesh and - in Javascript - positions its vertices using the equation entered by the user. THREE.js has a nice wrapper for this called `ParametricGeometry`.
 
-When you change the equation, you have to update all the vertex positions. To do this, the demo iterates over all vertices (in Javascript) and repositions them. It works well. But for fine meshes, it's prohibitively slow. When I implemented my grapher this way, moving a variable slider felt really jaggy and I wanted something faster.
+When the user changes the equation, you have to update the mesh's vertex positions. To do this, the demo iterates over all vertices (in Javascript) and repositions them. It works well. But when I implemented it, moving the variable slider felt really jaggy. I wanted something faster.
 
-The approach I ended up using is as follows.
+This is the approach I ended up using:
 
- - We create a scene with one mesh: a flat plane. Instead of positioning the vertices according to the user's equation, we position them in the range $(-10, -10)$ to $(10, 10)$ and set all their z-values to $0.$
- - We use the user's equation to generate a vertex shader that sets the $z$ position of each vertex in the plane. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. Vertex shaders are run mostly in parallel on the GPU, so setting vertex positions this way is really fast.
- - Variables like $p$ in the example above are passed to the shader from Javascript via something called a uniform (I'll say more about what that is later).
+ - We create a scene with one mesh: a flat plane. Every vertex in the plane has a z-value of $0$. The x and y values range from $-10$ to $10$.
+ - When the user enters a new equation, we use it to generate a vertex shader that sets the $z$ position of each vertex in the plane. A vertex shader is a piece of code that runs on the GPU and positions vertices before they are rendered. Vertex shaders do their work largely in parallel. Setting vertex positions this way is really fast.
+ - Variables like $p$ in the example above are passed to the shader from Javascript using something called a uniform (I'll say more about what that is later).
 
-To illustrate how much faster this approach is than setting vertex positions in Javascript, here's a graph of how long it takes each approach to prepare to render the equation $z = sin(x p) cos(y p)$ on a mesh with 40 000 vertices:
+To illustrate how much faster this approach is, here's a graph of how long it takes each method to prepare to render the equation $z = sin(x p) cos(y p)$ on a mesh with 40 000 vertices:
 
 <div style="text-align: center;">
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/timing.svg" />
 </div>
 
-This is just one sample on my laptop. It's not exactly scientific, but it should still be convincing to you. $397ms$ is _way_ too slow to feel interactive. The approach I talk about in this post is fast enough to make slider manipulation feel smooth.
+This is just one sample on my laptop. It's hardly scientific, but it should still be convincing to you. $397ms$ is _way_ too slow to feel interactive. The approach I talk about in this post is fast enough to make slider manipulation feel smooth.
 
 ## Transforming user-input into shaders
 
-WebGL Shaders are pieces of code written in a language called GLSL. Unlike the Javascript code running on this webpage, they run on the GPU. In WebGL applications, they start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
+WebGL Shaders are pieces of code written in a language called GLSL. Unlike Javascript code running on this webpage, they run on the GPU. In WebGL applications, they start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
 
-Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered (and have time to spare!) There are <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=113009" target="_blank">some exceptions on Windows</a>, but that hasn't been a problem for me in practice.
+Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered. There are <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=113009" target="_blank">some exceptions to this (particularly on Windows)</a> but that hasn't been a problem for me in practice.
 
-An example of a really common WebGL shader is below. If it looks intimidating to you, feel free to skim it. You don't need to understand it in detail right now.
+An example of a common vertex shader is below. Feel free to skim it. You don't need to understand it in detail to read the rest of this post.
 
 ~~~glsl
 // These variables are passed to the shader
@@ -100,9 +100,11 @@ void myVertexShader() {
 }
 ~~~
 
-For now, there are two things you need to know about this code.
+There are two things you need to know about this code.
 
-The first is that this shader is "standard". I feel bad saying that because it contains what I'm sure looks like complex hokey pokey. It's _standard_ in the sense that it'll render vertices to your screen in the right place. If I use it to render a flat plane from $(-10, -10)$ to $(10, 10)$, the rendered image will look like a flat plane from $(-10, -10)$ to $(10, 10)$:
+The first is that this shader is "standard". I feel bad saying that because it contains what I'm sure looks like complex hokey pokey. It's _standard_ in the sense that it'll render vertices to your screen in the 'right place'.
+
+If I use it to render a flat plane from $(-10, -10)$ to $(10, 10)$, the rendered image will look like a flat plane from $(-10, -10)$ to $(10, 10)$. Like so:
 
 <div class="imgContainer">
   <img src="/images/compiling-shaders/flat.png" />
