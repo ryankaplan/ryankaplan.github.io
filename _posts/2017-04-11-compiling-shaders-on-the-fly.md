@@ -42,11 +42,11 @@ I've been working on something called <a href="https://curvegrapher.com" target=
   </a>
 </div>
 
-In the example above, the application realizes that $p$ isn't a co-ordinate. It shows a slider which lets you change its value and update the graph in real time!
+In the example above, the application realizes that $p$ isn't a co-ordinate. It shows a slider which lets you change the value of $p$. Doing so updates the graph in real time!
 
 This post is a high level overview of how this works. My first attempt at building it was too slow. I'll talk about the current version which is much faster, and some of what I learned building it.
 
-Also, this post is about rendering explicit 3D equations (where the right hand side depends only on $x$ and $y$). Curve Grapher also handles implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
+Also, this post is specifically about rendering explicit 3D equations (where the right hand side of depends only on $x$ and $y$). Curve Grapher also handles implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
 
 ## High level approach
 
@@ -102,19 +102,19 @@ void myVertexShader() {
 
 There are two things you need to know about this code.
 
-The first is that this shader is "standard". I feel bad saying that because it contains what I'm sure looks like complex hokey pokey. It's _standard_ in the sense that it'll render vertices to your screen in the 'right place'.
+The first is that this shader is "standard". I feel bad saying that because it contains what I'm sure looks like complex hokey pokey. It's _standard_ in the sense that it'll render vertices to your screen in the right place.
 
-If I use it to render a flat plane from $(-10, -10)$ to $(10, 10)$, the rendered image will look like a flat plane from $(-10, -10)$ to $(10, 10)$. Like so:
+What do I mean by that? If I use it to render a flat plane from $(-10, -10)$ to $(10, 10)$, the rendered image will look like a flat plane from $(-10, -10)$ to $(10, 10)$. Like so...
 
 <div class="imgContainer">
   <img src="/images/compiling-shaders/flat.png" />
 </div>
 
-The second important thing to know is that it uses a variable declared as `attribute vec3 position`. Vertex shaders are run on the GPU in parallel. Each time the function in the shader is invoked, it's for a new vertex. The `position` variable holds the position of the vertex being processed.
+The second important thing to notice is that it uses a variable declared as `attribute vec3 position`. Vertex shaders are run on the GPU in parallel. Each time you render, WebGL will invoke the function in the shader once for each vertex in your mesh. Each time it's invoked, `position` will hold the position of the vertex being processed.
 
-The `attribute` keyword before the declaration of `position` says that it was assigned to the triangle mesh by our Javascript code before the scene was rendered. Since we're rendering a flat plane, `position.z` will be zero for all vertices. `position.x` and `position.y` will range from $-10$ to $10$.
+The `attribute` keyword before the declaration of `position` says that it was assigned to the triangle mesh by our Javascript code before the scene was rendered. Since we're rendering a flat plane, `position.z` will always be $0$. `position.x` and `position.y` will range from $-10$ to $10$.
 
-Suppose we change this shader so that, instead of rendering a flat plane, it renders the graph of $z = sin(x p) cos(y p)$. Here's what it might look like:
+Let's change this shader so that, instead of rendering a flat plane, it renders the graph of $z = sin(x p) cos(y p)$:
 
 ~~~glsl
 // These are the same as before.
@@ -141,26 +141,26 @@ void myVertexShader() {
 }
 ~~~
 
-This shader uses a function called `userDefinedPosition()` instead of `position`. `userDefinedPosition()` is generated based on user input, and it returns a vector like `position` except its z-value has been set according to the user's equation.
+Notice that this shader uses a function called `userDefinedPosition()` where the old shader used `position`.
 
-Here's a new, important, piece of information: the code above declares a variable called `var_p` and it's marked as a `uniform`. A uniform is a variable that's passed from Javascript to a shader. It's called a `uniform` because its value stays the same for each vertex processed by the shader.
+`userDefinedPosition()` is a function that returns a vector like `position` except its z-value has been set according to the user's equation.
 
-Because the variable $p$ in the user's equation is represented as a uniform, we can update its value from Javascript without generating a new shader.
+You might have noticed that the shader uses a variable called `var_p`, declared with the keyword `uniform`. This means that it's passed to the shader from Javascript. When you move a variable slider, we just change this uniform value instead of generating a new vertex shader.
 
 <!-- TODO(ryan): say more about this and how setting a uniform is much faster than generating a shader -->
 
-Most of the shader above is boilerplate. We'll have solved our problem if we can turn the user-defined equation into...
+Most of the shader above is boilerplate. These are the only parts that change when the user enters a new equation:
 
- - A list of uniforms for variables, like `uniform float var_p;`
- - An expression for the z-value of a vertex, like `sin(x * var_p) * cos(y * var_p)`
+ - uniform declarations of variables, like `uniform float var_p;`
+ - the expression for the z-value of each vertex, like `sin(x * var_p) * cos(y * var_p)`
 
-The rest of the shader above could be a template string into which we splice the uniforms and z-position expression. Then, whenever a user enters a new equation, we can generate a new shader and pass that to WebGL.
+In practice, we could use a template string for most of our shader. Whenever the user enters a new equation, we generate the two things above and splice them in.
 
 If it seems weird to you that we're generating code while the application is running, you're not alone. But it works! WebGL shaders can be defined at run-time and you can pass new ones to WebGL pretty much any time you like.
 
 ## Parsing
 
-A parser is a piece of code that takes some other piece of code as input and spits out something called an Abstract Syntax Tree (AST). As an example, it might take an expression like $z = sin(x p) cos(y p)$ and turn it into this:
+A parser is a piece of code that takes some other piece of code as input and spits out something called an Abstract Syntax Tree (AST). Using our example above, it would take $z = sin(x p) cos(y p)$ and turn it into this:
 
 <div style="text-align: center;">
   <img style="margin-bottom: 20px;" src="/images/compiling-shaders/ast.svg" />
