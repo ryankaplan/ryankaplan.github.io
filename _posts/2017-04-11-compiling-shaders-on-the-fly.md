@@ -254,7 +254,9 @@ And that's it. We stuff this into a template string to generate the desired vert
 
 I this article, I showed you how to build real-time manipulable graphs by using a vertex shader to position mesh vertices on the GPU. The technique of generating vertex shaders at run-time is not new. But it's powerful and something I plan to explore more deeply.
 
-Hopefully this was interesting to you! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
+Hopefully this was interesting to you! If you have thoughts or comments, let me know below. Or, if you're interested in more posts like this one, <a href="https://twitter.com/ryanjkaplan" target="_blank">follow me on Twitter!</a>
+
+Here's one last Graph I think is cool :-)
 
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">

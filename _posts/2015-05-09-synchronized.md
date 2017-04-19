@@ -253,5 +253,7 @@ A next step in the investigation would be to investigate the assembly outputted 
 
 [1] A recursive lock is one that does not deadlock if it is re-aquired by a thread that already holds it. You can find a neat example of how it works [here](http://en.wikipedia.org/wiki/Reentrant_mutex#Example). There's a handy class called `NSRecursiveLock` that behaves this way if you want to try it out.
 
+---
 
+*Interested in more posts like this one? <a href="https://twitter.com/ryanjkaplan" target="_blank">Follow me on Twitter!</a>*
 

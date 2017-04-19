@@ -113,6 +113,10 @@ categories:
   That's all for now! I'd like to talk about the applications of entropy, but I don't know enough about that yet. When I learn more, I'll write a part 2.
 </p>
 
+---
+
+*Interested in more posts like this one? <a href="https://twitter.com/ryanjkaplan" target="_blank">Follow me on Twitter!</a>*
+
 <script>
   renderMathInElement(document.body);
 </script>
