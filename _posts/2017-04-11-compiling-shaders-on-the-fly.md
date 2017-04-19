@@ -74,7 +74,7 @@ This is just one sample on my laptop. It's hardly scientific, but it should stil
 
 ## Transforming user-input into shaders
 
-WebGL Shaders are pieces of code written in a language called GLSL. Unlike Javascript code running on this webpage, they run on the GPU. In WebGL applications, they start out as strings in Javascript and are passed to the GPU after you call the WebGL function `gl.shaderSource` and pass it the shader code.
+WebGL Shaders are pieces of code written in a language called GLSL. Unlike Javascript code running on this webpage, they run on the GPU. In WebGL applications, the source code of a shader starts out as a string in Javascript. It's passed to the GPU after you call the WebGL function `gl.shaderSource` with the source code as an argument.
 
 Passing a new shader to WebGL is surprisingly fast. You can do it in the time between two frames of your computer screen being renderered. There are <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=113009" target="_blank">some exceptions to this (particularly on Windows)</a> but that hasn't been a problem for me in practice.
 
@@ -172,9 +172,9 @@ Each node in this AST represents one of the following...
  - an operator like $+$, $*$ or $=$
  - a function call ($\sin$, $\cos$)
 
-What makes this data structure useful to us is that it removes many language specific details from your code. You could imagine inspecting the tree above and writing Java code that represents it, or C++, or python, etc. In my case, it helped me translate the user defined equation into GLSL (the programming language for code that runs on the GPU).
+This data structure is useful to us because it removes language specific details from the equation. You could inspect the tree above and write Java that represents it, or C++, or python, etc. In our case, we're going to use the AST to generate GLSL.
 
-In code, the `y * p` part of this tree (in the bottom right) might be represented by a Javascript object like this...
+In code, the `y * p` part of this tree (bottom right) is represented by a Javascript object like this...
 
 ~~~js
 const node = {
@@ -195,22 +195,24 @@ const node = {
 }
 ~~~
 
-Each node of the tree has a type and a list of children (which might be empty). Nodes that represent variables like $x$ and $p$ have type `VARIABLE`, in which case they have a name attribute as well.
+Each node of the tree has a type and a list of children. Operator nodes like `TIMES` have a list of two children. `VARIABLE` nodes have names like $y$ and $p$ and have no children.
 
-There are many good open-source equation parsers online. But I've felt for a while that parsing and compiler technology is out of reach, and in an attempt to stop feeling that way I decided to build my own. My parser uses a technique called Pratt Parsing. If you're interested in learning more about it, I highly this article <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/" target="_blank">this article</a>. I also found it helpful to read the source code for <a href="https://github.com/evanw/glslx" target="_blank">GLSLX</a>, a GLSL type checker. It uses a Pratt Parser to parse expressions in GLSL code.
+There are many good open-source equation parsers online. But I've felt for a while that parsing and compiler technology is out of reach. I decided to build my own so I could stop feeling that way.
 
-My parser gave me a way to turn the user's equation into an AST. The next step in our process is turning an AST into GLSL code.
+My parser uses a technique called Pratt Parsing. If you're interested in learning more about it, I recommend <a href="http://journal.stuffwithstuff.com/2011/03/19/pratt-parsers-expression-parsing-made-easy/" target="_blank">this excellent article</a>. I also found it helpful to read the source code for <a href="https://github.com/evanw/glslx/blob/master/src/core/parser.sk" target="_blank">GLSLX</a>, which uses a Pratt Parser to parse expressions in GLSL code.
+
+My parser gave me a way to turn the user's equation into an AST. The next step is turning an AST into GLSL.
 
 ## GLSL generation
 
 Given an AST, we want to...
 
- - Find variables that aren't co-ordinates, so that we can generate uniform declarations for them (like `uniform float var_p;`) and so that we can show sliders for them in the UI.
- - Generate a string containing GLSL code that computes the right hand side of the user's equation. In our example this is `sin(x * var_p) * cos(y * var_p)`.
+ - Find variables that aren't co-ordinates, so that we can generate uniform declarations for them (like `uniform float var_p;`).
+ - Generate a GLSL expression for the user's equation, like `sin(x * var_p) * cos(y * var_p)`.
 
-The first task is solved by looking at each node in your AST and keeping track any nodes of type `VARIABLE` whose name isn't `x` or `y`.
+The first task is solved by looking at each node in your AST and keeping track of any nodes of type `VARIABLE` whose name isn't `x` or `y`.
 
-To solve the second task, I have a function like the following that walks over the tree and builds the GLSL code. Here's a really simplified example of the real function that does this:
+To solve the second task, we recursively walk through the tree and generate GLSL for each subtree. Here's a really simplified example of the real function that does this:
 
 ~~~js
 function toGLSL(node) {
@@ -244,20 +246,13 @@ function toGLSL(node) {
 }
 ~~~
 
-This function takes in an AST and returns code like `sin(x * var_p) * cos(y * var_p)`. And that's it!
+This function takes in an AST and returns code like `sin(x * var_p) * cos(y * var_p)`.
 
-
-In summary: if the user-input is $z = sin(x p) cos(y p)$, we should generate the following AST...
-
-<div style="text-align: center;">
-  <img style="margin-bottom: 20px;" src="/images/compiling-shaders/ast.svg" />
-</div>
-
-... which should generate the code above. We stuff this into a template string to generate the desired vertex shader above, and tell WebGL to use that vertex shader when rendering the mesh.
+And that's it. We stuff this into a template string to generate the desired vertex shader!
 
 ## Conclusion
 
-In this article, I explained how you can achieve real-time manipulable 3D graphs by positioning vertices in a vertex shader. More generally, generating shaders at runtime is a powerful method of building realtime-interactive applications and something I plan to explore more deeply.
+I this article, I showed you how to build real-time manipulable graphs by using a vertex shader to position mesh vertices on the GPU. The technique of generating vertex shaders at run-time is not new. But it's powerful and something I plan to explore more deeply.
 
 Hopefully this was interesting to you! If you have thoughts or comments, let me know below. Also, as a thank you for reading, here is a cool graph :D
 
