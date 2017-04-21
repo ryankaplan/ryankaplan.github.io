@@ -25,12 +25,10 @@ categories:
   background-image: none;
 }
 
-.gifContainer video {
+.gifContainer img {
   border: 1px solid #999;
   border-radius: 3px;
   margin-bottom: 20px;
-  width: 100%;
-  background-color: white;
 }
 </style>
 
@@ -40,9 +38,7 @@ I've been working on something called <a href="https://curvegrapher.com" target=
 
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(p%20x)%20cos(p%20y)&hi=0&va=p~1.00~0.00~1.00~0&c=3.61%2C13.20%2C17.95%7D&l=0.00~1.00~0.00~1.00" target="_blank">
-    <video autoplay loop muted playsinline>
-      <source src="/images/compiling-shaders/wave.mp4" type="video/mp4" >
-    </video>
+    <img src="/images/compiling-shaders/wave.gif" />
   </a>
 </div>
 
@@ -264,9 +260,7 @@ Here's one last Graph I think is cool :-)
 
 <div class="gifContainer">
   <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">
-    <video autoplay loop muted playsinline>
-      <source src="/images/compiling-shaders/cool.mp4" type="video/mp4">
-    </video>
+    <img src="/images/compiling-shaders/cool.gif" />
   </a>
 </div>
 
