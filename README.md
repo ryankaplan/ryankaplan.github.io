@@ -4,4 +4,9 @@ This is my personal site. It's built with Jekyll.
 
 # Development
 
-Run `./debug.sh` to serve locally
+Run...
+
+```
+git submodule update --recursive --remote
+./debug.sh
+```
