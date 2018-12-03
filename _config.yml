@@ -11,8 +11,7 @@ url: "http://www.rykap.com"
 date_format: "%b %-d, %Y"
 excerpt_separator: <!--end-excerpt-->
 exclude: ["vendor/"]
-
-
+highlight: rouge
 
 # Google services
 google_verification:
