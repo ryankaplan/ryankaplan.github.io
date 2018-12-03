@@ -1,12 +1,15 @@
 a {
   color: $link-color;
-  background-image: linear-gradient(to top,
-    rgba(0,0,0,0) 13%,
-    rgba($link-color,.8) 13%,
-    rgba($link-color,.8) 18%,
-    rgba(0,0,0,0) 17%
-  );
-  text-shadow: white 1px 0px 0px, white -1px 0px 0px;
+  background: $link-background-color;
+  // Underline...
+  // background-image: linear-gradient(to top,
+  //   rgba(0,0,0,0) 13%,
+  //   rgba($link-color,.8) 13%,
+  //   rgba($link-color,.8) 18%,
+  //   rgba(0,0,0,0) 17%
+  // );
+  // text-shadow: white 1px 0px 0px, white -1px 0px 0px;
+  font-weight: bold;
 }
 
 a:hover,
@@ -15,13 +18,19 @@ a:active {
   border: 0;
   color: $link-hover-color;
   text-decoration: none;
-  background-image: linear-gradient(to top,
-    rgba(0,0,0,0) 13%,
-    rgba($link-hover-color,.8) 13%,
-    rgba($link-hover-color,.8) 17%,
-    rgba(0,0,0,0) 17%
-  );
-  text-shadow: white 1px 0px 0px, white -1px 0px 0px;
+  background: $link-background-color-active;
+  // Underline...
+  // background-image: linear-gradient(to top,
+  //   rgba(0,0,0,0) 13%,
+  //   rgba($link-hover-color,.8) 13%,
+  //   rgba($link-hover-color,.8) 17%,
+  //   rgba(0,0,0,0) 17%
+  // );
+  // text-shadow: white 1px 0px 0px, white -1px 0px 0px;
+}
+
+a.no-background {
+  background: none !important;
 }
 
 // Correct issues with buttons

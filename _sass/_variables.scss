@@ -1,7 +1,7 @@
 // Typography
 $base-font-size: 14px;
 $bold-font-weight: bold !default;
-$font-family: Georgia, 'Times New Roman', serif !default;
+$font-family: "Domine", "Palatino Linotype", "Book Antiqua", Palatino, serif;
 $line-height: 1.5 !default;
 $heading-font-family: 'Lato', 'Helvetica Neue', Helvetica, sans-serif !default;
 $heading-font-weight: 900 !default;
@@ -32,6 +32,7 @@ $viewport-medium: 48em;
 $viewport-large: 64em;
 
 // Colors
+$black: #111 !default;
 $blue: #0076df !default;
 $red: #f95020 !default;
 $green: #00cf26 !default;
@@ -53,7 +54,9 @@ $darken-3: rgba(#000,.25) !default;
 $darken-4: rgba(#000,.5) !default;
 
 // Links
-$link-color: $blue;
+$link-color: $black;
+$link-background-color: rgba(255, 204, 34, 0.28);
+$link-background-color-active: $orange;
 $link-hover-color: darken($blue, 40%);
 
 // Breakpoints
