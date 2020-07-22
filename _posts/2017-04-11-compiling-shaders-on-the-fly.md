@@ -34,10 +34,10 @@ categories:
 
 <!-- Something I've been meaning to do is graph the time it takes to (a) iterate through all vertices in a finely divided plane (b) to generate a -->
 
-I've been working on something called <a href="https://curvegrapher.com" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(p x) cos(p y)$.
+I've been working on something called <a href="https://curvegrapher.netlify.app/" target="_blank">Curve Grapher</a>. It's a webpage that renders graphs of math equations, like $z = sin(p x) cos(p y)$.
 
 <div class="gifContainer">
-  <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(p%20x)%20cos(p%20y)&hi=0&va=p~1.00~0.00~1.00~0&c=3.61%2C13.20%2C17.95%7D&l=0.00~1.00~0.00~1.00" target="_blank">
+  <a href="https://curvegrapher.netlify.app/#v=0&eq=z%20%3D%20sin(p%20x)%20cos(p%20y)&hi=0&va=p~1.00~0.00~1.00~0&c=3.61%2C13.20%2C17.95%7D&l=0.00~1.00~0.00~1.00" target="_blank">
     <img src="/images/compiling-shaders/wave.gif" />
   </a>
 </div>
@@ -46,7 +46,7 @@ In the example above, the application realizes that $p$ isn't a co-ordinate. It 
 
 This post is a high level overview of how this works. My first attempt at building it was too slow. I'll talk about the current version which is much faster, and some of what I learned building it.
 
-Also, this post is specifically about rendering explicit 3D equations (where the right hand side of depends only on $x$ and $y$). Curve Grapher also handles implicit 2D and 3D equations, like <a href="https://www.curvegrapher.com/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
+Also, this post is specifically about rendering explicit 3D equations (where the right hand side of depends only on $x$ and $y$). Curve Grapher also handles implicit 2D and 3D equations, like <a href="https://curvegrapher.netlify.app/#v=0&eq=sin(x)%20%3D%20cos(y)%20-%20sin(z)&hi=0&va=&c=15.14%2C14.91%2C19.98%7D&l=0.00~1.00~0.00~1.00" target="_blank">$sin(x) = cos(y) - sin(z)$</a>. I hope to write more about that later.
 
 ## High level approach
 
@@ -259,7 +259,7 @@ Hopefully this was interesting to you! If you have thoughts or comments, let me 
 Here's one last Graph I think is cool :-)
 
 <div class="gifContainer">
-  <a href="https://www.curvegrapher.com/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">
+  <a href="https://curvegrapher.netlify.app/#v=0&eq=z%20%3D%20sin(atan(sin(x)%20cos(y)%20p))&hi=0&va=p~2.24~-3.00~3.00~0&c=-9.60%2C11.93%2C10.18%7D&l=0.00~1.00~0.00~1.00" target="_blank" style="text-align: center; text-decoration: none;">
     <img src="/images/compiling-shaders/cool.gif" />
   </a>
 </div>
