@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Building a fast Equation Grapher (Part I)
+title: Building a fast Equation Grapher
 date:   2017-04-11 00:00:00
 summary: To let you manipulate math equations in real time, I needed to generate WebGL shaders at run-time based on user-input. This is how I did it.
 categories:
