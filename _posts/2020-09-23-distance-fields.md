@@ -30,6 +30,8 @@ categories:
 
 </style>
 
+_Disclaimer: the demos on this page use WebGL features that aren't available on some mobile devices._
+
 A couple of weeks ago I tweeted a video of a toy graphics project (below). It’s not done, but a lot of people liked it which was surprising and fun! A few people asked how it works, so that’s what this post is about.
 
 <div class="aspect-ratio">
@@ -38,8 +40,6 @@ A couple of weeks ago I tweeted a video of a toy graphics project (below). It’
     >
   </iframe>
 </div>
-
-_Disclaimer: the demos on this page use WebGL features that aren't available on some mobile devices._
 
 Under the hood it uses something called a distance field. A distance field is an image like the one below that tells you how far each pixel is from your shape. Light grey pixels are close to the shape and dark grey pixels are far from it.
 
