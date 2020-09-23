@@ -39,6 +39,8 @@ A couple of weeks ago I tweeted a video of a toy graphics project (below). It’
   </iframe>
 </div>
 
+_Disclaimer: the demos on this page use WebGL features that aren't available on some mobile devices._
+
 Under the hood it uses something called a distance field. A distance field is an image like the one below that tells you how far each pixel is from your shape. Light grey pixels are close to the shape and dark grey pixels are far from it.
 
 <image style="margin-bottom: 20px;" src="/images/ray-marching/distance-field.png"></image>
