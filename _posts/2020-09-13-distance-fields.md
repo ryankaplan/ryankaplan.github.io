@@ -2,7 +2,7 @@
 layout: post
 title: "Ray Marching Soft Shadows in 2D"
 date: 2020-09-13 00:00:00
-summary: I posted a WebGL to twitter and it blew up! This post talks about how it works under the hood.
+summary: I posted a WebGL demo to twitter and it blew up! This post talks about how it works under the hood.
 categories:
   - graphics
   - webgl
