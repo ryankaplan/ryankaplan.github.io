@@ -241,4 +241,4 @@ This improves the approximation because we're adding more steps to our ray march
 
 Overall my demo has a few extra tweaks that I might write about in future but this is the core of it. Thanks for reading! If you have questions or comments, let me know [on Twitter](https://twitter.com/ryanjkaplan).
 
-_Thank you to Jessica Liu, Susan Wang, Matt Nichols and Kenrick Rilee for giving feedback on early drafts of this post! Also, if you enjoyed this post you might enjoy working with me at [Figma](https://www.figma.com/careers/)!_
+\_Thank you to Jessica Liu, Susan Wang, Matt Nichols and Kenrick Rilee for giving feedback on early drafts of this post!
